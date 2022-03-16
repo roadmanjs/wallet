@@ -19,9 +19,9 @@
     "private": false,
     "scripts": {
         "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
-        "build": "rimraf dist && ./node_modules/.bin/tsc --skipLibCheck",
+        "postbuild": "node dist/postbuild.js",
+        "prebuild": "ts-node src/prebuild.ts",
         "test": "mocha src/*test.ts --exit",
-        "prepublishOnly": "npm run build",
         "eslint": "eslint ./src --fix --ext=ts"
     },
     "lint-staged": {
@@ -68,6 +68,7 @@
         "typescript": ">=2.0"
     },
     "dependencies": {
+        "@roadmanjs/utils": "^0.0.9",
         "chalk": "^4.1.0",
         "debug": "^4.3.1",
         "dotenv": "^8.2.0",

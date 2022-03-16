@@ -30,12 +30,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Install packages with yarn
+      # Install packages
       - name: "Install"
         run: npm install
 
-      # Publish the package
-      - name: npm publish
+      # Build packages
+      - name: "Install"
+        run: npm run build   
+
+      - name: npm publish dist-client
+        run: |
+          npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
+          npm publish "dist-client/" --access=public
+        env:
+          CI: true
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      # Publish the the main package
+      - name: npm publish main
         run: |
           npm config set //registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN
           npm publish --access=public
