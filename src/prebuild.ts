@@ -1,18 +1,11 @@
 import 'reflect-metadata';
 
+import {BadgeClient} from './badge';
 import {writeAutomaticClient} from '@roadmanjs/utils';
 
 // Automatically run this before building
 (async () => {
-    // const clients: any[] = [
-    //     {name: 'Comment', client: CommentClient, fragment: Comment},
-    //     {
-    //         name: 'Reaction',
-    //         client: ReactionClient,
-    //         fragment: Reaction,
-    //     },
-    // ];
-    const clients = [];
+    const clients: any[] = [{name: 'Badge', client: BadgeClient, fragment: Comment}];
 
     await writeAutomaticClient({
         clients,

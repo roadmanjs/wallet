@@ -1,7 +1,7 @@
 {
-    "name": "roadman-template",
+    "name": "@roadmanjs/badge",
     "version": "0.0.1",
-    "description": "My cool roadman package",
+    "description": "A very Badge",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
@@ -65,11 +65,13 @@
         "typescript": "^4.4.3"
     },
     "peerDependencies": {
-        "typescript": ">=2.0"
+        "typescript": ">=2.0",
+        "couchset": ">=0.0.17"
     },
     "dependencies": {
         "@roadmanjs/utils": "^0.0.9",
         "chalk": "^4.1.0",
+        "couchset": "^0.0.17",
         "debug": "^4.3.1",
         "dotenv": "^8.2.0",
         "lodash": "^4.17.20"

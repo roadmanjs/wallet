@@ -1,15 +1,7 @@
 
 <p align="center">
-  <h1 align="center"> RoadmanJS - Template  </h1>
+  <h1 align="center"> RoadmanJS Badge - a very badge </h1>
 </p>
 
 
-<div align="center">
-
-<img width="500px" src="./docs/starterpack.jpeg"></img>
-
-
-</div>
-
-
-## Build your roadman packages with friends.
+## A Roadman for creating badges, messages, notifications, settings .e.t.c ...
