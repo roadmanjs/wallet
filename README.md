@@ -1,6 +1,6 @@
 
 <p align="center">
-  <h1 align="center"> Roadman - Template  </h1>
+  <h1 align="center"> RoadmanJS - Template  </h1>
 </p>
 
 
