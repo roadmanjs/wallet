@@ -19,6 +19,7 @@
     "private": false,
     "scripts": {
         "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
+        "build": "rm -rf dist dist-client && tsc --skipLibCheck",
         "postbuild": "node dist/postbuild.js",
         "prebuild": "ts-node src/prebuild.ts",
         "test": "mocha src/*test.ts --exit",
@@ -65,8 +66,8 @@
         "typescript": "^4.4.3"
     },
     "peerDependencies": {
-        "typescript": ">=2.0",
-        "couchset": ">=0.0.17"
+        "couchset": ">=0.0.17",
+        "typescript": ">=2.0"
     },
     "dependencies": {
         "@roadmanjs/utils": "^0.0.9",
@@ -74,6 +75,7 @@
         "couchset": "^0.0.17",
         "debug": "^4.3.1",
         "dotenv": "^8.2.0",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.20",
+        "reflect-metadata": "^0.1.13"
     }
 }
