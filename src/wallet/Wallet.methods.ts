@@ -118,4 +118,4 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
  * add payment to queue processor
  * TODO implement the queue
  */
-export const addToPaymentQueue = () => {};
+// export const addToPaymentQueue = () => {};

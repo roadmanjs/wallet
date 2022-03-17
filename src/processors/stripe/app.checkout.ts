@@ -2,6 +2,7 @@ import express, {Router} from 'express';
 import nodestripe, {Stripe} from 'stripe';
 
 import {StripeResponseWebhook} from './response.interface';
+import {fulfillStripePayment} from './stripe.methods';
 import {log} from '@roadmanjs/logs';
 import {paymentProcessorDescription} from './config';
 
@@ -105,6 +106,7 @@ export const expressifyStripe = (): Router => {
                 // account.
                 if (session.payment_status === 'paid') {
                     // addToPaymentQueue(session);
+                    await fulfillStripePayment(session);
                 }
 
                 break;
@@ -115,6 +117,7 @@ export const expressifyStripe = (): Router => {
 
                 // Fulfill the purchase...
                 // addToPaymentQueue(session);
+                await fulfillStripePayment(session);
 
                 break;
             }

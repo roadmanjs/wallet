@@ -1,6 +1,6 @@
 import {log, verbose} from '@roadmanjs/logs';
 
-import {StripeMetadata} from './response.interface';
+import {StripeDataObject} from './response.interface';
 import {updateWallet} from '../../wallet/Wallet.methods';
 
 /**
@@ -8,7 +8,9 @@ import {updateWallet} from '../../wallet/Wallet.methods';
  * TODO should be called from a message broker
  * @param metadata
  */
-export const fulfillStripePayment = async (metadata: StripeMetadata): Promise<void> => {
+export const fulfillStripePayment = async (stripeData: StripeDataObject): Promise<void> => {
+    const metadata = stripeData.metadata;
+
     verbose('Fulfilling metadata', metadata);
 
     try {
