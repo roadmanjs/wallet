@@ -10,7 +10,7 @@ import {isAuth, isAdmin} from '@roadmanjs/auth';
 import TransactionModel, {Transaction} from './Transaction.model';
 
 @Resolver()
-export class TransactionResolver {
+export class TransactionAdminResolver {
     // TODO time pagination
 
     @Query(() => [Transaction])
@@ -46,4 +46,4 @@ export class TransactionResolver {
     }
 }
 
-export default TransactionResolver;
+export default TransactionAdminResolver;

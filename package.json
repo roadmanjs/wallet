@@ -70,7 +70,7 @@
         "typescript": ">=2.0"
     },
     "dependencies": {
-        "@roadmanjs/auth": "^0.0.22",
+        "@roadmanjs/auth": "^0.0.23",
         "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.9",
         "chalk": "^4.1.0",
