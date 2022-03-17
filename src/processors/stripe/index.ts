@@ -10,5 +10,5 @@ export const stripeRoadman = async (roadmanArgs: RoadmanBuild) => {
         return null;
     }
 
-    roadmanArgs.app.use(expressifyStripe());
+    roadmanArgs.app.use('/stripe', expressifyStripe());
 };
