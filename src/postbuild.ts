@@ -20,8 +20,8 @@ import {DirArg, buildDirs, createClientPackageJson} from '@roadmanjs/utils';
     buildDirs(args);
 
     await createClientPackageJson({
-        name: '@roadmanjs/badge-client',
-        description: 'GraphQL client gql for @roadmanjs/badge',
+        name: '@roadmanjs/wallet-client',
+        description: 'GraphQL client gql for @roadmanjs/wallet',
 
         extraProps: {
             main: 'client/index.js',
