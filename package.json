@@ -1,7 +1,7 @@
 {
-    "name": "@roadmanjs/badge",
+    "name": "@roadmanjs/wallet",
     "version": "0.0.1",
-    "description": "A very Badge",
+    "description": "A very Wallet",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "files": [
@@ -70,6 +70,8 @@
         "typescript": ">=2.0"
     },
     "dependencies": {
+        "@roadmanjs/auth": "^0.0.22",
+        "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.9",
         "chalk": "^4.1.0",
         "couchset": "^0.0.17",
