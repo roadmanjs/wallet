@@ -12,16 +12,16 @@ export class Transaction {
     @Field(() => String, {nullable: true})
     status = '';
 
-    @Field({nullable: true})
+    @Field(() => String, {nullable: true})
     source = ''; // crypto paypal, credit card, interact
 
-    @Field({nullable: true})
+    @Field(() => String, {nullable: true})
     sourceId?: string = ''; // paypal, credit card, interact
 
-    @Field({nullable: true})
+    @Field(() => String, {nullable: true})
     currency = '';
 
-    @Field({nullable: true})
+    @Field(() => Number, {nullable: true})
     amount = 0;
 }
 
