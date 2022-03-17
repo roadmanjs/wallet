@@ -3,7 +3,7 @@ import {Field, InputType, Model, ObjectType} from 'couchset';
 @InputType('BadgeInput')
 @ObjectType()
 export class Badge {
-    @Field(() => String, {nullable: true, description: 'The account that posted this'})
+    @Field(() => String, {nullable: true, description: 'The owner of the account'})
     owner = '';
 
     @Field(() => String, {nullable: true, description: 'The model for this badge'})
