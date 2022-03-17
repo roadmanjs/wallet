@@ -1,5 +1,5 @@
 Arguments: 
-  /Users/ceddymuhoza/.nvm/versions/node/v16.11.0/bin/node /Users/ceddymuhoza/.yarn/bin/yarn.js add @roadmanjs/log
+  /Users/ceddymuhoza/.nvm/versions/node/v16.11.0/bin/node /Users/ceddymuhoza/.yarn/bin/yarn.js add @roadmanjs/spec
 
 PATH: 
   /Applications/Couchbase\ Server.app/Contents/Resources/couchbase-core/bin:/Users/ceddymuhoza/.krew/bin:/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin:/Users/ceddymuhoza/.yarn/bin:/Users/ceddymuhoza/.config/yarn/global/node_modules/.bin:/Users/ceddymuhoza/.nvm/versions/node/v16.11.0/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Applications/Couchbase\ Server.app/Contents/Resources/couchbase-core/bin:/Users/ceddymuhoza/.krew/bin:/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin:/Users/ceddymuhoza/.yarn/bin:/Users/ceddymuhoza/.config/yarn/global/node_modules/.bin:/Users/ceddymuhoza/.nvm/versions/node/v16.11.0/bin:/Users/ceddymuhoza/.cargo/bin:/Users/ceddymuhoza/flutter/bin:/Applications/Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/cbimport:/Users/ceddymuhoza/flutter/bin:/Applications/Couchbase\ Server.app/Contents/Resources/couchbase-core/bin/cbimport
@@ -14,7 +14,7 @@ Platform:
   darwin x64
 
 Trace: 
-  Error: https://registry.yarnpkg.com/@roadmanjs%2flog: Not found
+  Error: https://registry.yarnpkg.com/@roadmanjs%2fspec: Not found
       at Request.params.callback [as _callback] (/Users/ceddymuhoza/.yarn/lib/cli.js:66988:18)
       at Request.self.callback (/Users/ceddymuhoza/.yarn/lib/cli.js:140749:22)
       at Request.emit (node:events:390:28)
@@ -100,13 +100,15 @@ npm manifest:
       },
       "dependencies": {
           "@roadmanjs/auth": "^0.0.22",
+          "@roadmanjs/logs": "^0.0.1",
           "@roadmanjs/utils": "^0.0.9",
           "chalk": "^4.1.0",
           "couchset": "^0.0.17",
           "debug": "^4.3.1",
           "dotenv": "^8.2.0",
           "lodash": "^4.17.20",
-          "reflect-metadata": "^0.1.13"
+          "reflect-metadata": "^0.1.13",
+          "stripe": "^8.209.0"
       }
   }
 
@@ -594,7 +596,7 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.31.tgz#31b7ca6407128a3d2bbc27fe2d21b345397f6197"
     integrity sha512-iiUgKzV9AuaEkZqkOLDIvlQiL6ltuZd9tGcW3gwpnX8JbuiuhFlEGmmFXEXkN50Cvq7Os88IY2v0dkDqXYWVgA==
   
-  "@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0":
+  "@types/node@*", "@types/node@>=12.12.47", "@types/node@>=13.7.0", "@types/node@>=8.1.0":
     version "17.0.21"
     resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.21.tgz#864b987c0c68d07b4345845c3e63b75edd143644"
     integrity sha512-DBZCJbhII3r90XbQxI8Y9IjjiiOGlZ0Hr32omXIZvwwZ7p4DMMXGrKXVyPfuoBOri9XNtL0UK69jYIBIsRX3QQ==
@@ -3472,6 +3474,13 @@ Lockfile:
     resolved "https://registry.yarnpkg.com/punycode/-/punycode-2.1.1.tgz#b58b010ac40c22c5657616c8d2c2c02c7bf479ec"
     integrity sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
   
+  qs@^6.6.0:
+    version "6.10.3"
+    resolved "https://registry.yarnpkg.com/qs/-/qs-6.10.3.tgz#d6cde1b2ffca87b5aa57889816c5f81535e22e8e"
+    integrity sha512-wr7M2E0OFRfIfJZjKGieI8lBKb7fRCH4Fv5KNPEs7gJ8jadvotdsS08PzOKR7opXhZ/Xkjtt3WF9g38drmyRqQ==
+    dependencies:
+      side-channel "^1.0.4"
+  
   queue-microtask@^1.2.2:
     version "1.2.3"
     resolved "https://registry.yarnpkg.com/queue-microtask/-/queue-microtask-1.2.3.tgz#4929228bbc724dfac43e0efb058caf7b6cfb6243"
@@ -3984,6 +3993,14 @@ Lockfile:
     version "2.0.1"
     resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
     integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
+  
+  stripe@^8.209.0:
+    version "8.209.0"
+    resolved "https://registry.yarnpkg.com/stripe/-/stripe-8.209.0.tgz#a8f34132fb4140bdf9152943b15c641ad99cd3b1"
+    integrity sha512-ozfs8t0fxA/uvCK1DNvitSdEublOHK5CTRsrd2AWWk9LogjXcfkxmtz3KGSSQd+jyA2+rbee9TMzhJ6aabQ5WQ==
+    dependencies:
+      "@types/node" ">=8.1.0"
+      qs "^6.6.0"
   
   stubs@^3.0.0:
     version "3.0.0"

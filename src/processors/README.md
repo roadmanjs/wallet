@@ -3,3 +3,5 @@
 <!-- HTTP WH: onPayment -->
 
 <!-- When prod move coinbase to it's own package -->
+
+<!-- use stripe as example -->
