@@ -8,6 +8,11 @@ import {paymentProcessorDescription} from './config';
 // Set your secret key. Remember to switch to your live secret key in production.
 // See your keys here: https://dashboard.stripe.com/account/apikeys
 
+/**
+ * TODO add multiple currencies passed via roadman args
+ * HTTP STRIPE
+ * @returns
+ */
 export const expressifyStripe = (): Router => {
     const stripe: Stripe = nodestripe(process.env.STRIPE_SECRET);
 
@@ -21,7 +26,7 @@ export const expressifyStripe = (): Router => {
     app.post('/session', async (req, res) => {
         const host = req.body.host;
         const path = req.body.path;
-        const userId = req.body.userId;
+        const owner = req.body.userId;
         const amount = req.body.amount || 1;
         const intentQuery: string = req.body.intentQuery || '';
         const productIntent = req.body.intent || {};
@@ -35,7 +40,7 @@ export const expressifyStripe = (): Router => {
         }
 
         const session = await stripe.checkout.sessions.create({
-            metadata: {userId, amount, ...productIntent},
+            metadata: {owner, amount, ...productIntent},
             payment_method_types: ['card'],
             line_items: [
                 {

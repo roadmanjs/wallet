@@ -113,3 +113,9 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
         throw error;
     }
 };
+
+/**
+ * add payment to queue processor
+ * TODO implement the queue
+ */
+export const addToPaymentQueue = () => {};
