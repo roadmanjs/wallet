@@ -15,6 +15,7 @@ import {paymentProcessorDescription} from './config';
  * @returns
  */
 export const expressifyStripe = (): Router => {
+    // @ts-ignore
     const stripe: Stripe = nodestripe(process.env.STRIPE_SECRET);
 
     // Find your endpoint's secret in your Dashboard's webhook settings

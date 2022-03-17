@@ -95,6 +95,7 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
             const currentBalance = getWallet.amount;
             const newBalance = currentBalance + amount;
 
+            // @ts-ignore
             const updatedWallet = await WalletModel.save({
                 ...getWallet,
                 amount: newBalance,
