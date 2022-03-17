@@ -10,7 +10,6 @@ export class Wallet {
 
     @Field(() => Number, {nullable: true, description: 'Amount in this wallet'})
     amount = 0;
-
     // TODO currencyName, symbol e.t.c for localization
 }
 
