@@ -11,16 +11,16 @@ import TransactionModel, {Transaction} from './Transaction.model';
 
 @Resolver()
 export class TransactionAdminResolver {
-    // TODO time pagination
-
+    // TODO just time pagination
+    // TODO demo resolver
     @Query(() => [Transaction])
     @UseMiddleware(isAuth)
     @UseMiddleware(isAdmin)
     async allTransactions(
-        @Arg('search', {nullable: true}) search: string,
-        @Arg('owner', {nullable: true}) owner: number,
-        @Arg('page', {nullable: true}) page: number,
-        @Arg('limit', {nullable: true}) limit: number
+        @Arg('search', () => String, {nullable: true}) search: string,
+        @Arg('owner', () => Number, {nullable: true}) owner: number,
+        @Arg('page', () => Number, {nullable: true}) page: number,
+        @Arg('limit', () => Number, {nullable: true}) limit: number
     ): Promise<Transaction[]> {
         try {
             const extraWhere: any = {};

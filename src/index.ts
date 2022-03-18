@@ -2,10 +2,20 @@
 //  ---> roadman.app(applyProcessor)
 // export resolvers
 
-import {TransactionDefaultResolver} from './transactions';
+import {
+    TransactionAdminResolver,
+    TransactionDefaultResolver,
+    TransactionResolver,
+} from './transactions';
+
 import {WalletDefaultResolver} from './wallet';
 
-export const getWalletResolvers = () => [WalletDefaultResolver, TransactionDefaultResolver];
+export const getWalletResolvers = () => [
+    TransactionResolver,
+    TransactionAdminResolver,
+    WalletDefaultResolver,
+    TransactionDefaultResolver,
+];
 
 export * from './wallet';
 export * from './transactions';

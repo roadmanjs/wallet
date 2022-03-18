@@ -22,6 +22,12 @@ export const expressifyStripe = (): Router => {
     const endpointSecret: any = process.env.STRIPE_ENDPOINT_SECRET;
 
     const app = express.Router();
+
+    // TODO to delete
+    app.get('/ping', async (req, res) => {
+        log('stripe');
+        res.json({stripe: 'stripe'});
+    });
     /**
      * Create checkout session
      */
