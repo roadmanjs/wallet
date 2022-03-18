@@ -21,7 +21,7 @@ export class TransactionResolver {
     // TODO move this couchset when byTime Updated
     @Query(() => [TransactionPagination])
     @UseMiddleware(isAuth)
-    async transactionsByTime(
+    async transactions(
         @Ctx() ctx: ContextType,
         @Arg('filter', () => String, {nullable: true}) filter?: string,
         @Arg('sort', () => String, {nullable: true}) sortArg?: string,
