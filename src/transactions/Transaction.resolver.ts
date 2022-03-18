@@ -62,7 +62,6 @@ export class TransactionResolver {
         @Arg('limit', () => Number, {nullable: true}) limitArg?: number
     ): Promise<{items: Transaction[]; hasNext?: boolean; params?: any}> {
         const transactionModelName = Transaction.name;
-
         const owner = _get(ctx, 'payload.userId', '');
         const bucket = CouchbaseConnection.Instance.bucketName;
         const sign = before ? '<=' : '>=';
@@ -86,11 +85,12 @@ export class TransactionResolver {
         try {
             const query = `
               SELECT *
-                  FROM \`${bucket}\` post
-                  WHERE post._type = "${transactionModelName}"
-                  AND post.owner = "${owner}"
-                  AND post.createdAt ${sign} "${time.toISOString()}"
-                  ORDER BY post.createdAt ${sort}
+                  FROM \`${bucket}\` trans
+                  WHERE trans._type = "${transactionModelName}"
+                  ${filter ? `AND trans.type = "${filter}"` : ''}
+                  AND trans.owner = "${owner}"
+                  AND trans.createdAt ${sign} "${time.toISOString()}"
+                  ORDER BY trans.createdAt ${sort}
                   LIMIT ${limitPassed};
               `;
 
@@ -115,8 +115,8 @@ export class TransactionResolver {
             }
 
             const dataToSend = rows.map((d) => {
-                const {post} = d;
-                return TransactionModel.parse(post);
+                const {trans} = d;
+                return TransactionModel.parse(trans);
             });
 
             return {items: dataToSend, params: copyParams, hasNext};
