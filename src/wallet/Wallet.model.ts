@@ -3,6 +3,15 @@ import {Field, InputType, Model, ObjectType} from 'couchset';
 @InputType('WalletInput')
 @ObjectType()
 export class Wallet {
+    @Field(() => String, {nullable: true})
+    id?: string;
+
+    @Field(() => Date, {nullable: true})
+    createdAt?: Date;
+
+    @Field(() => Date, {nullable: true})
+    updatedAt?: Date;
+
     @Field(() => String, {nullable: true, description: 'The owner of the account'})
     owner = '';
 
@@ -17,10 +26,10 @@ export class Wallet {
 export const WalletModel = new Model(Wallet.name, {graphqlType: Wallet});
 
 // TODO automatic
-
-export const {
-    resolver: WalletDefaultResolver, // there's going to be other custom resolvers
-    pagination: WalletPagination,
-    client: WalletClient,
-    modelKeys: WalletModelKeys,
-} = WalletModel.automate();
+// TODO no need for automatic wallet
+// export const {
+//     resolver: WalletDefaultResolver, // there's going to be other custom resolvers
+//     pagination: WalletPagination,
+//     client: WalletClient,
+//     modelKeys: WalletModelKeys,
+// } = WalletModel.automate();

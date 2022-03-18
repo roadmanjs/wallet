@@ -4,6 +4,15 @@ import {Field, InputType, Model, ObjectType} from 'couchset';
 @ObjectType()
 export class Transaction {
     @Field(() => String, {nullable: true})
+    id?: string;
+
+    @Field(() => Date, {nullable: true})
+    createdAt?: Date;
+
+    @Field(() => Date, {nullable: true})
+    updatedAt?: Date;
+
+    @Field(() => String, {nullable: true})
     owner?: string = '';
 
     @Field(() => String, {nullable: true}) // TODO use enums
@@ -27,6 +36,7 @@ export class Transaction {
 
 export const TransactionModel: Model = new Model(Transaction.name, {graphqlType: Transaction});
 
+// TODO use automatic transaction when couchset byTime is completed
 export const {
     resolver: TransactionDefaultResolver, // there's going to be other custom resolvers
     pagination: TransactionPagination,

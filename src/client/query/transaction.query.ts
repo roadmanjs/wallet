@@ -1,4 +1,4 @@
-import {TransactionPAGE} from '../TRANSACTION_PAGE';
+import {TransactionPaginationFragment} from './transaction.fragment';
 import gql from 'graphql-tag';
 
 export const TRANSACTIONS_BY_TIME = gql`
@@ -16,8 +16,8 @@ export const TRANSACTIONS_BY_TIME = gql`
             after: $after
             limit: $limit
         ) {
-            ...TransactionPAGE
+            ...TransactionPaginationFragment
         }
     }
-    ${TransactionPAGE}
+    ${TransactionPaginationFragment}
 `;
