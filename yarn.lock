@@ -310,20 +310,20 @@
     dotenv "^8.2.0"
     lodash "^4.17.20"
 
+"@roadmanjs/utils@^0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@roadmanjs/utils/-/utils-0.0.12.tgz#b2d751c99de09031487f4b31f8b95bb4fb04d86d"
+  integrity sha512-CdgW7+ifRW4RmgqhB2LyOj4T0ytS/DVo/W654it8g7LnugrcHICoGOEcNM7uouMVYTI+uo/Q+3sgznd5BywUMA==
+  dependencies:
+    shelljs "^0.8.5"
+    ts-morph "^13.0.3"
+
 "@roadmanjs/utils@^0.0.4":
   version "0.0.4"
   resolved "https://registry.yarnpkg.com/@roadmanjs/utils/-/utils-0.0.4.tgz#7c3a0c9ca11ce40803fca53433ceb76fd8f4daf1"
   integrity sha512-+0Z+t2OwzVXsYAUE5Fcf1OCSjMSuLj4CAxV3oWWhVt8YqV29h65MyVnY+MbIXx/QUJem/O+kcWIGbDJeJx7Yfg==
   dependencies:
     shelljs "^0.8.5"
-
-"@roadmanjs/utils@^0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@roadmanjs/utils/-/utils-0.0.9.tgz#9e1fb4eae3da72e992d2ac9d14c4814d04576a7f"
-  integrity sha512-+7wF5pvR7yoUa357aUsxJEFYqygJmTVCRWPgp6TCIZ+v+Ff+nBxGx4gu2rmvRxnjovZop+mX4/RALB4XKynfIg==
-  dependencies:
-    shelljs "^0.8.5"
-    ts-morph "^13.0.3"
 
 "@tootallnate/once@2":
   version "2.0.0"
