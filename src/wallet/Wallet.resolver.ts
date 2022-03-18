@@ -22,6 +22,7 @@ export class WalletResolver {
                     return createFindWallet({
                         owner,
                         currency,
+                        create: true,
                     });
                 })
             );
