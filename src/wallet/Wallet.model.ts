@@ -1,5 +1,6 @@
-import {Field, Model, ObjectType} from 'couchset';
+import {Field, InputType, Model, ObjectType} from 'couchset';
 
+@InputType('WalletInput')
 @ObjectType()
 export class Wallet {
     @Field(() => String, {nullable: true, description: 'The owner of the account'})
