@@ -1,3 +1,4 @@
+// NO need for auto clients
 import 'reflect-metadata';
 
 import {Transaction, TransactionClient} from './transactions/Transaction.model';

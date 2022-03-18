@@ -4,13 +4,13 @@ import {Field, InputType, Model, ObjectType} from 'couchset';
 @ObjectType()
 export class Transaction {
     @Field(() => String, {nullable: true})
-    id?: string;
+    id?: string = '';
 
     @Field(() => Date, {nullable: true})
-    createdAt?: Date;
+    createdAt?: Date = new Date();
 
     @Field(() => Date, {nullable: true})
-    updatedAt?: Date;
+    updatedAt?: Date = new Date();
 
     @Field(() => String, {nullable: true})
     owner?: string = '';
@@ -37,12 +37,12 @@ export class Transaction {
 export const TransactionModel: Model = new Model(Transaction.name, {graphqlType: Transaction});
 
 // TODO use automatic transaction when couchset byTime is completed
-export const {
-    resolver: TransactionDefaultResolver, // there's going to be other custom resolvers
-    pagination: TransactionPagination,
-    client: TransactionClient,
-    modelKeys: TransactionModelKeys,
-} = TransactionModel.automate();
+// export const {
+//     resolver: TransactionDefaultResolver, // there's going to be other custom resolvers
+//     pagination: TransactionPagination,
+//     client: TransactionClient,
+//     modelKeys: TransactionModelKeys,
+// } = TransactionModel.automate();
 
 // TODO automatic
 

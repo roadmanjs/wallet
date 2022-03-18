@@ -21,7 +21,7 @@
         "lint": "tslint \"src/**/*.ts\" --project tsconfig.json",
         "build": "rm -rf dist dist-client && tsc --skipLibCheck",
         "postbuild": "node dist/postbuild.js",
-        "prebuild": "ts-node src/prebuild.ts",
+        "prebuildx": "ts-node src/prebuild.ts",
         "test": "mocha src/*test.ts --exit",
         "eslint": "eslint ./src --fix --ext=ts"
     },

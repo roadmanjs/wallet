@@ -4,13 +4,13 @@ import {Field, InputType, Model, ObjectType} from 'couchset';
 @ObjectType()
 export class Wallet {
     @Field(() => String, {nullable: true})
-    id?: string;
+    id?: string = '';
 
     @Field(() => Date, {nullable: true})
-    createdAt?: Date;
+    createdAt?: Date = new Date();
 
     @Field(() => Date, {nullable: true})
-    updatedAt?: Date;
+    updatedAt?: Date = new Date();
 
     @Field(() => String, {nullable: true, description: 'The owner of the account'})
     owner = '';

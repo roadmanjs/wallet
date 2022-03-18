@@ -11,49 +11,14 @@ import pickBy from 'lodash/pickBy';
 import identity from 'lodash/identity';
 import {log} from '@roadmanjs/logs';
 import TransactionModel, {Transaction} from './Transaction.model';
-
 import {ContextType, isAuth} from '@roadmanjs/auth';
-import {isEmpty} from 'lodash';
 import {CouchbaseConnection, getPagination} from 'couchset';
 import {awaitTo} from 'couchset/dist/utils';
 
 const TransactionPagination = getPagination(Transaction);
 @Resolver()
 export class TransactionResolver {
-    @Query(() => [Transaction])
-    @UseMiddleware(isAuth)
-    async transactions(
-        @Ctx() ctx: ContextType,
-        @Arg('filter', () => String, {nullable: true}) filter: string, // WithdrawOrDeposit,
-        @Arg('page', () => Number, {nullable: true}) page: number,
-        @Arg('limit', () => Number, {nullable: true}) limit: number
-    ): Promise<Transaction[]> {
-        const owner = _get(ctx, 'payload.userId', '');
-
-        try {
-            // use context
-            const wheres: any = {
-                owner: {$eq: owner},
-            };
-
-            // If filter by status
-            if (filter) {
-                wheres.type = {$eq: filter};
-            }
-
-            const data = await TransactionModel.pagination({
-                where: wheres,
-                limit,
-                page,
-            });
-
-            return isEmpty(data) ? [] : data;
-        } catch (error) {
-            log('error getting transactions', error);
-            return [];
-        }
-    }
-
+    // TODO move this couchset when byTime Updated
     @Query(() => [TransactionPagination])
     @UseMiddleware(isAuth)
     async transactionsByTime(
