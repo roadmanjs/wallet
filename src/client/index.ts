@@ -8,3 +8,4 @@ export * from './TRANSACTION_GET';
 export * from './TRANSACTION_DELETE';
 export * from './TRANSACTION_CREATE';
 export * from './TRANSACTION_PAGE';
+export * from './CUSTOM_QUERY';
