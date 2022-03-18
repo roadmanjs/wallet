@@ -7,14 +7,14 @@ import {
     TransactionDefaultResolver,
     TransactionResolver,
 } from './transactions';
-
-import {WalletDefaultResolver} from './wallet';
+import {WalletDefaultResolver, WalletResolver} from './wallet';
 
 export const getWalletResolvers = () => [
     TransactionResolver,
     TransactionAdminResolver,
-    WalletDefaultResolver,
     TransactionDefaultResolver,
+    WalletDefaultResolver,
+    WalletResolver,
 ];
 
 export * from './wallet';
