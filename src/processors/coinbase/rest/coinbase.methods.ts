@@ -2,7 +2,7 @@ import {Address, Client} from 'coinbase';
 import {coinbaseAddress, coinbaseKey, coinbaseSecret} from './config';
 
 interface Args {
-    address: string;
+    address?: string;
     name: string;
 }
 
