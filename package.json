@@ -38,6 +38,7 @@
     "devDependencies": {
         "@types/chai": "^4.2.14",
         "@types/chalk": "^2.2.0",
+        "@types/coinbase": "^2.0.8",
         "@types/debug": "^4.1.5",
         "@types/dotenv": "^8.2.0",
         "@types/lodash": "^4.14.168",
@@ -74,6 +75,7 @@
         "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.12",
         "chalk": "^4.1.0",
+        "coinbase": "^2.0.8",
         "couchset": "^0.0.17",
         "debug": "^4.3.1",
         "dotenv": "^8.2.0",
