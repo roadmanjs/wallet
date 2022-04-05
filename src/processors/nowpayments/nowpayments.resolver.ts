@@ -13,7 +13,7 @@ import {awaitTo} from 'couchset/dist/utils';
 export class NowPaymentsResolver {
     @Query(() => [Transaction])
     @UseMiddleware(isAuth)
-    async createInvoice(
+    async nowPaymentsCreateInvoice(
         @Ctx() ctx: ContextType,
         @Arg('amount', () => Number, {nullable: false}) payAmount: number,
         @Arg('currency', () => String, {nullable: true}) priceCurrency: string,
