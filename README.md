@@ -9,7 +9,7 @@
 
 
 
-## A Roadman for wallet that supports, coinbase, stripe .e.t.c ...
+## A Roadman for wallet that supports, coinbase, stripe, nowpayments .e.t.c ...
 
 env
 
@@ -20,18 +20,20 @@ STRIPE_PAYMENT_DESC=mycompany
 STRIPE_SECRET=xxxxxx
 STRIPE_ENDPOINT_SECRET=xxxxxx
 
-# TODO coinbase
+# to enable nowpayments for crypto
+NOWPAYMENTS_KEY=
+NOWPAYMENTS_SECRET_IPN=xxxxx    # for verifying the webhooks
+NOWPAYMENTS_CALLBACK_URL=xxxxxx # for webhooks
 ```
 
 How to use
 
 ```ts
 import roadman from "roadman";
-import { stripeRoadman, getWalletResolvers} from "@roadmanjs/wallet"
+import { stripeRoadman, nowPaymentsRoadman, getWalletResolvers, getNowPaymentsResolvers} from "@roadmanjs/wallet"
 
 roadman({
-  roadmen: [stripeRoadman],
-  resolvers: [...myresolvers, getWalletResolvers()]
+  roadmen: [stripeRoadman, nowPaymentsRoadman],
+  resolvers: [...myresolvers, ...getWalletResolvers(), ...getNowPaymentsResolvers()]
 });
-
 ```

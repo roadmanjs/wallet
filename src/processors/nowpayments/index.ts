@@ -1,10 +1,12 @@
+import NowPaymentsResolver from './nowpayments.resolver';
 import {RoadmanBuild} from '@roadmanjs/core';
 import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
 import {nowPaymentsKey} from './config';
 import {nowpaymentsExpressify} from './app.webhook';
 
-// TODO test
+export const getNowPaymentsResolvers = () => [NowPaymentsResolver];
+
 export const nowPaymentsRoadman = async (roadmanArgs: RoadmanBuild) => {
     // if stripe env is null do not enable it
     if (isEmpty(nowPaymentsKey)) {

@@ -29,15 +29,15 @@ export const createNowPaymentInvoice = async (invoice: ICreateInvoice): Promise<
 
 export const findNowPaymentTransaction = async (sourceId: string): Promise<Transaction> => {
     try {
-        const transaction = await TransactionModel.pagination({
+        const transactions = await TransactionModel.pagination({
             select: '*',
             where: {
                 sourceId,
             },
         });
 
-        if (!isEmpty(transaction)) {
-            return transaction[0]; // return the first one
+        if (!isEmpty(transactions)) {
+            return transactions[0]; // return the first one
         }
 
         throw new Error('Transaction not found');
