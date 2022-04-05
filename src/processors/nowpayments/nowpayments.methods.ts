@@ -16,9 +16,7 @@ export const createNowPayment = async (
     return await api.createPayment(payment);
 };
 
-export const createNowPaymentInvoice = async (
-    invoice: ICreateInvoice
-): Promise<InvoiceReturn | Error> => {
+export const createNowPaymentInvoice = async (invoice: ICreateInvoice): Promise<InvoiceReturn> => {
     const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
-    return await api.createInvoice(invoice);
+    return (await api.createInvoice(invoice)) as InvoiceReturn;
 };
