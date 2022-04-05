@@ -59,7 +59,8 @@ export class NowPaymentsResolver {
                 currency: price_currency,
             };
 
-            await TransactionModel.create(newTransaction); // save transaction
+            const createTransaction = await TransactionModel.create(newTransaction); // save transaction
+            log(`newTransaction created ${JSON.stringify(createTransaction)}`);
 
             return nowPaymentInvoiceCreated.invoice_url;
         } catch (error) {
