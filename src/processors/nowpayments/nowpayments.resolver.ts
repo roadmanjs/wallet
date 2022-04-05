@@ -17,14 +17,13 @@ export class NowPaymentsResolver {
         @Ctx() ctx: ContextType,
         @Arg('amount', () => Number, {nullable: false}) payAmount: number,
         @Arg('currency', () => String, {nullable: true}) priceCurrency: string,
-        @Arg('order_id', () => String, {nullable: true}) orderId: string,
         @Arg('order_description', () => String, {nullable: true}) orderDescription: string,
         @Arg('success_url', () => String, {nullable: true}) successUrl: string,
         @Arg('cancel_url', () => String, {nullable: true}) cancelUrl: string
     ): Promise<String> {
         const owner = _get(ctx, 'payload.userId', '');
         const price_currency = priceCurrency || 'usd';
-        const order_id = orderId || `${owner}-${uuidv4()}`;
+        const order_id = `${owner}-${uuidv4()}`;
         const order_description = orderDescription || `${order_id}-Payment`;
 
         try {

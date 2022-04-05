@@ -2,6 +2,7 @@ import express, {Router} from 'express';
 
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import crypto from 'crypto';
+import {fulfillNowPayment} from './nowpayments.methods';
 import {log} from '@roadmanjs/logs';
 import {nowPaymentsSecretIPN} from './config';
 
@@ -38,6 +39,7 @@ export const nowpaymentsExpressify = (): Router => {
 
         switch (payload.payment_status) {
             case 'success': {
+                await fulfillNowPayment(payload);
                 // TODO fullfill payment
                 break;
             }
