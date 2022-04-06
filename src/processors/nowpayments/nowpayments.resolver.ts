@@ -4,10 +4,9 @@ import _get from 'lodash/get';
 import {log} from '@roadmanjs/logs';
 import type {ICreateInvoice} from '@nowpaymentsio/nowpayments-api-js/src/types';
 import {isAuth, ContextType} from '@roadmanjs/auth';
-import {Transaction, TransactionModel} from '../../transactions';
+import {Transaction} from '../../transactions';
 import {nowPaymentsCallbackUrl} from './config';
 import {createNowPaymentInvoice} from './nowpayments.methods';
-import {awaitTo} from 'couchset/dist/utils';
 
 @Resolver()
 export class NowPaymentsResolver {
@@ -37,29 +36,10 @@ export class NowPaymentsResolver {
                 cancel_url: cancelUrl,
             };
 
-            const [nowInvoiceError, nowPaymentInvoiceCreated] = await awaitTo(
-                createNowPaymentInvoice(createInvoice)
+            const {invoice: nowPaymentInvoiceCreated} = await createNowPaymentInvoice(
+                createInvoice,
+                owner
             );
-
-            if (nowInvoiceError) {
-                throw nowInvoiceError;
-            }
-
-            log(`nowPaymentInvoiceCreated created ${JSON.stringify(nowPaymentInvoiceCreated)}`);
-
-            // create a transaction
-            const newTransaction: Transaction = {
-                type: 'deposit',
-                owner,
-                source: 'nowpayments',
-                sourceId: nowPaymentInvoiceCreated.order_id, // for checking status from client
-                status: 'waiting',
-                amount: payAmount,
-                currency: price_currency,
-            };
-
-            const createTransaction = await TransactionModel.create(newTransaction); // save transaction
-            log(`newTransaction created ${JSON.stringify(createTransaction)}`);
 
             return nowPaymentInvoiceCreated.invoice_url;
         } catch (error) {
@@ -67,6 +47,8 @@ export class NowPaymentsResolver {
             return null;
         }
     }
+
+    // todo nowPaymentsCreatePayment
 }
 
 export default NowPaymentsResolver;

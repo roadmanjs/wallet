@@ -15,16 +15,88 @@ import isEmpty from 'lodash/isEmpty';
 import {nowPaymentsKey} from './config';
 import {updateWallet} from '../../wallet';
 
+/**
+ * Create a now payment
+ * @param payment
+ * @param owner
+ * @returns
+ */
 export const createNowPayment = async (
-    payment: ICreatePayment
-): Promise<CreatePaymentReturn | Error> => {
-    const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
-    return await api.createPayment(payment);
+    payment: ICreatePayment,
+    owner: string
+): Promise<{payment: CreatePaymentReturn; transaction: Transaction}> => {
+    try {
+        const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
+        const [nowPaymentError, nowPaymentCreated] = await awaitTo(api.createPayment(payment));
+
+        if (nowPaymentError) {
+            throw nowPaymentError;
+        }
+
+        log(`createNowPayment created ${JSON.stringify(nowPaymentCreated)}`);
+
+        // create a transaction
+        const newTransaction: Transaction = {
+            type: 'deposit',
+            owner,
+            source: 'nowpayments',
+            // @ts-ignore
+            sourceId: nowPaymentCreated.order_id, // for checking status from client
+            status: 'waiting',
+            amount: payment.price_amount,
+            currency: payment.price_currency,
+        };
+
+        const createTransaction = await TransactionModel.create(newTransaction); // save transaction
+        log(`newTransaction created ${JSON.stringify(createTransaction)}`);
+        return {transaction: createTransaction, payment: nowPaymentCreated as CreatePaymentReturn};
+    } catch (error) {
+        log(`error createNowPayment ${error && error.message}`);
+        return null;
+    }
 };
 
-export const createNowPaymentInvoice = async (invoice: ICreateInvoice): Promise<InvoiceReturn> => {
-    const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
-    return (await api.createInvoice(invoice)) as InvoiceReturn;
+/**
+ * Creates a nowpayment invoice invoice
+ * @param invoice
+ * @param owner
+ * @returns
+ */
+export const createNowPaymentInvoice = async (
+    invoice: ICreateInvoice,
+    owner: string
+): Promise<{transaction: Transaction; invoice: InvoiceReturn}> => {
+    try {
+        const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
+        const [nowInvoiceError, nowPaymentInvoiceCreated] = await awaitTo(
+            api.createInvoice(invoice)
+        );
+
+        if (nowInvoiceError) {
+            throw nowInvoiceError;
+        }
+
+        log(`nowPaymentInvoiceCreated created ${JSON.stringify(nowPaymentInvoiceCreated)}`);
+
+        // create a transaction
+        const newTransaction: Transaction = {
+            type: 'deposit',
+            owner,
+            source: 'nowpayments',
+            // @ts-ignore
+            sourceId: nowPaymentInvoiceCreated.order_id, // for checking status from client
+            status: 'waiting',
+            amount: invoice.price_amount,
+            currency: invoice.price_currency,
+        };
+
+        const createTransaction = await TransactionModel.create(newTransaction); // save transaction
+        log(`newTransaction created ${JSON.stringify(createTransaction)}`);
+        return {transaction: createTransaction, invoice: nowPaymentInvoiceCreated as InvoiceReturn};
+    } catch (error) {
+        log(`error createNowPaymentInvoice ${error && error.message}`);
+        return null;
+    }
 };
 
 export const findNowPaymentTransaction = async (sourceId: string): Promise<Transaction> => {
