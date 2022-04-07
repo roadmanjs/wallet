@@ -22,11 +22,18 @@ class NowApi {
 
     async createPayment(args: ICreatePayment): Promise<CreatePaymentReturn> {
         const {data} = await this.api.post('/payment', args);
+
+        if (!data.order_id) {
+            throw new Error(`${data.code} ${data.message}`);
+        }
         return data;
     }
 
     async createInvoice(args: ICreateInvoice): Promise<InvoiceReturn> {
         const {data} = await this.api.post('/invoice', args);
+        if (!data.order_id) {
+            throw new Error(`${data.code} ${data.message}`);
+        }
         return data;
     }
 }

@@ -24,6 +24,7 @@
         "prebuildx": "ts-node src/prebuild.ts",
         "test": "mocha src/*test.ts --exit",
         "coinbase": "mocha src/processors/coinbase/rest/*test.ts --exit",
+        "nowpayments": "mocha src/processors/nowpayments/wrapper/*test.ts --exit",
         "eslint": "eslint ./src --fix --ext=ts"
     },
     "lint-staged": {

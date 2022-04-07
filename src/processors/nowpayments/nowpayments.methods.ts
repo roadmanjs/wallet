@@ -4,8 +4,8 @@ import type {
     ICreatePayment,
 } from '@nowpaymentsio/nowpayments-api-js/src/types';
 import {Transaction, TransactionModel} from '../../transactions';
+import {isNowPaymentsSandbox, nowPaymentsKey} from './config';
 import {log, verbose} from '@roadmanjs/logs';
-import {nowPaymentsKey, nowPaymentsSandbox} from './config';
 
 import type {CreatePaymentReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/create-payment';
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
@@ -16,7 +16,7 @@ import {awaitTo} from 'couchset/dist/utils';
 import isEmpty from 'lodash/isEmpty';
 import {updateWallet} from '../../wallet';
 
-const sandbox = !isEmpty(nowPaymentsSandbox);
+const sandbox = isNowPaymentsSandbox;
 
 /**
  * Create a now payment
@@ -36,10 +36,6 @@ export const createNowPayment = async (
             throw nowPaymentError;
         }
 
-        if (!nowPaymentCreated.order_id) {
-            throw new Error('error creating payment');
-        }
-
         log(`createNowPayment created ${JSON.stringify(nowPaymentCreated)}`);
 
         // create a transaction
@@ -47,8 +43,7 @@ export const createNowPayment = async (
             type: 'deposit',
             owner,
             source: 'nowpayments',
-            // @ts-ignore
-            sourceId: nowPaymentCreated.order_id, // for checking status from client
+            sourceId: `${nowPaymentCreated.payment_id}`, // for checking status from client
             status: 'waiting',
             amount: payment.price_amount,
             currency: payment.price_currency,
@@ -94,8 +89,7 @@ export const createNowPaymentInvoice = async (
             type: 'deposit',
             owner,
             source: 'nowpayments',
-            // @ts-ignore
-            sourceId: nowPaymentInvoiceCreated.order_id, // for checking status from client
+            sourceId: '' + nowPaymentInvoiceCreated.id, // for checking status from client
             status: 'waiting',
             amount: invoice.price_amount,
             currency: invoice.price_currency,
@@ -137,7 +131,6 @@ export const fulfillNowPayment = async (
 
     try {
         const {pay_amount: amount, order_id: sourceId = ''} = paymentStatusData;
-        const owner = sourceId.split('-')[0]; // is like userId-somestring;
 
         if (amount) {
             // find the waiting transaction and delete it
@@ -150,6 +143,8 @@ export const fulfillNowPayment = async (
             if (errorWaitingTransaction) {
                 throw errorWaitingTransaction;
             }
+
+            const owner = waitingTransaction.owner;
 
             await TransactionModel.delete(waitingTransaction.id); // delete the waiting transaction
 
