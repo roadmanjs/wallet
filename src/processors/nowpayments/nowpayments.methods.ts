@@ -5,15 +5,18 @@ import type {
 } from '@nowpaymentsio/nowpayments-api-js/src/types';
 import {Transaction, TransactionModel} from '../../transactions';
 import {log, verbose} from '@roadmanjs/logs';
+import {nowPaymentsKey, nowPaymentsSandbox} from './config';
 
 import type {CreatePaymentReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/create-payment';
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import type {InvoiceReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/create-invoice';
-import NowPaymentsApi from '@nowpaymentsio/nowpayments-api-js';
+import NowApi from './wrapper/api';
+// import NowPaymentsApi from '@nowpaymentsio/nowpayments-api-js';
 import {awaitTo} from 'couchset/dist/utils';
 import isEmpty from 'lodash/isEmpty';
-import {nowPaymentsKey} from './config';
 import {updateWallet} from '../../wallet';
+
+const sandbox = !isEmpty(nowPaymentsSandbox);
 
 /**
  * Create a now payment
@@ -26,7 +29,7 @@ export const createNowPayment = async (
     owner: string
 ): Promise<{payment: CreatePaymentReturn; transaction: Transaction}> => {
     try {
-        const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
+        const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
         const [nowPaymentError, nowPaymentCreated] = await awaitTo(api.createPayment(payment));
 
         if (nowPaymentError) {
@@ -67,7 +70,7 @@ export const createNowPaymentInvoice = async (
     owner: string
 ): Promise<{transaction: Transaction; invoice: InvoiceReturn}> => {
     try {
-        const api = new NowPaymentsApi({apiKey: nowPaymentsKey}); // your api key
+        const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
         const [nowInvoiceError, nowPaymentInvoiceCreated] = await awaitTo(
             api.createInvoice(invoice)
         );
