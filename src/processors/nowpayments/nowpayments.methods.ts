@@ -23,7 +23,7 @@ const sandbox = isNowPaymentsSandbox;
  * @param id
  * @returns
  */
-export const getPaymentStatus = async (id: string) => {
+export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusReturn> => {
     const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
     return await api.getStatus(id);
 };

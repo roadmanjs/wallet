@@ -2,6 +2,7 @@ import type {ICreateInvoice, ICreatePayment} from '@nowpaymentsio/nowpayments-ap
 import axios, {AxiosInstance} from 'axios';
 
 import type {CreatePaymentReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/create-payment';
+import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import type {InvoiceReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/create-invoice';
 
 class NowApi {
@@ -37,7 +38,7 @@ class NowApi {
         return data;
     }
 
-    async getStatus(id: string): Promise<InvoiceReturn> {
+    async getStatus(id: string): Promise<GetPaymentStatusReturn> {
         const {data} = await this.api.get(`/payment/${id}`);
         if (!data.order_id) {
             throw new Error(`${data.code} ${data.message}`);

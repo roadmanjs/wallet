@@ -10,7 +10,7 @@ import {nowPaymentsCallbackUrl, nowPaymentsSecretIPN} from './config';
 
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import crypto from 'crypto';
-import {isEmpty} from 'lodash';
+import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
 import {v4 as uuidv4} from 'uuid';
 
@@ -86,6 +86,7 @@ export const nowpaymentsExpressify = (): Router => {
             order_description = `${order_id}-Payment`,
             success_url,
             cancel_url,
+            ...otherArgs
         } = req.body || {};
 
         const createInvoice: ICreateInvoice = {
@@ -96,6 +97,7 @@ export const nowpaymentsExpressify = (): Router => {
             order_description,
             success_url,
             cancel_url,
+            ...otherArgs,
         };
 
         log('createinvoice', {createInvoice, owner});
