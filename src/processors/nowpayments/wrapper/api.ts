@@ -36,6 +36,14 @@ class NowApi {
         }
         return data;
     }
+
+    async getStatus(id: string): Promise<InvoiceReturn> {
+        const {data} = await this.api.get(`/payment/${id}`);
+        if (!data.order_id) {
+            throw new Error(`${data.code} ${data.message}`);
+        }
+        return data;
+    }
 }
 
 export default NowApi;

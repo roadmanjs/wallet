@@ -19,6 +19,16 @@ import {updateWallet} from '../../wallet';
 const sandbox = isNowPaymentsSandbox;
 
 /**
+ * Get the payment status
+ * @param id
+ * @returns
+ */
+export const getPaymentStatus = async (id: string) => {
+    const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
+    return await api.getStatus(id);
+};
+
+/**
  * Create a now payment
  * @param payment
  * @param owner

@@ -1,10 +1,16 @@
 import type {ICreateInvoice, ICreatePayment} from '@nowpaymentsio/nowpayments-api-js/src/types';
-import {createNowPayment, createNowPaymentInvoice, fulfillNowPayment} from './nowpayments.methods';
+import {
+    createNowPayment,
+    createNowPaymentInvoice,
+    fulfillNowPayment,
+    getPaymentStatus,
+} from './nowpayments.methods';
 import express, {Router} from 'express';
 import {nowPaymentsCallbackUrl, nowPaymentsSecretIPN} from './config';
 
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import crypto from 'crypto';
+import {isEmpty} from 'lodash';
 import {log} from '@roadmanjs/logs';
 import {v4 as uuidv4} from 'uuid';
 
@@ -14,6 +20,23 @@ export const nowpaymentsExpressify = (): Router => {
     app.get('/ping', async (req, res) => {
         log('now');
         res.json({nowpayments: 'now'});
+    });
+
+    // /status?id=blaseblase
+    app.get('/status', async (req, res) => {
+        try {
+            const payId = req.query.id;
+            log('status', payId);
+
+            if (isEmpty(payId)) {
+                throw new Error('payment id cannot be empty');
+            }
+
+            const paymentStatus = await getPaymentStatus(payId as string);
+            return paymentStatus;
+        } catch (error) {
+            res.json({error: error && error.message});
+        }
     });
 
     // for any custom UI, e.g popup with returned info
