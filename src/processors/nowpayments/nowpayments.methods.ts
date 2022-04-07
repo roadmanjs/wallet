@@ -36,6 +36,10 @@ export const createNowPayment = async (
             throw nowPaymentError;
         }
 
+        if (!nowPaymentCreated.order_id) {
+            throw new Error('error creating payment');
+        }
+
         log(`createNowPayment created ${JSON.stringify(nowPaymentCreated)}`);
 
         // create a transaction
@@ -77,6 +81,10 @@ export const createNowPaymentInvoice = async (
 
         if (nowInvoiceError) {
             throw nowInvoiceError;
+        }
+
+        if (!nowPaymentInvoiceCreated.order_id) {
+            throw new Error('error creating invoice');
         }
 
         log(`nowPaymentInvoiceCreated created ${JSON.stringify(nowPaymentInvoiceCreated)}`);
