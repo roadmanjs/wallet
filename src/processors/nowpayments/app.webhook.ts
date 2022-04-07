@@ -33,9 +33,9 @@ export const nowpaymentsExpressify = (): Router => {
             }
 
             const paymentStatus = await getPaymentStatus(payId as string);
-            return paymentStatus;
+            return res.json(paymentStatus);
         } catch (error) {
-            res.json({error: error && error.message});
+            return res.json({error: error && error.message});
         }
     });
 

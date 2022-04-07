@@ -4,7 +4,6 @@ import _get from 'lodash/get';
 import {log} from '@roadmanjs/logs';
 import type {ICreateInvoice} from '@nowpaymentsio/nowpayments-api-js/src/types';
 import {isAuth, ContextType} from '@roadmanjs/auth';
-import {Transaction} from '../../transactions';
 import {nowPaymentsCallbackUrl} from './config';
 import {createNowPaymentInvoice, getPaymentStatus} from './nowpayments.methods';
 import isEmpty from 'lodash/isEmpty';
@@ -45,7 +44,7 @@ class GetPaymentStatus {
 
 @Resolver()
 export class NowPaymentsResolver {
-    @Query(() => [Transaction])
+    @Query(() => String) // todo return invoice and transaction
     @UseMiddleware(isAuth)
     async nowPaymentsCreateInvoice(
         @Ctx() ctx: ContextType,
@@ -83,7 +82,7 @@ export class NowPaymentsResolver {
         }
     }
 
-    @Query(() => [GetPaymentStatus])
+    @Query(() => GetPaymentStatus)
     @UseMiddleware(isAuth)
     async nowPaymentsStatus(
         @Arg('id', () => String, {nullable: false}) payId: string
