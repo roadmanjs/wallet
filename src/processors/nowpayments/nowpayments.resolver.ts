@@ -7,7 +7,7 @@ import {isAuth, ContextType} from '@roadmanjs/auth';
 import {nowPaymentsCallbackUrl, nowPaymentsPayCurrency} from './config';
 import {createNowPayment, getPaymentStatus} from './nowpayments.methods';
 import isEmpty from 'lodash/isEmpty';
-import {CreatePaymentResponse, GetPaymentStatus} from './nowpayments.modal';
+import {CreatePaymentResponse, GetPaymentStatusResponse} from './nowpayments.modal';
 
 @Resolver()
 export class NowPaymentsResolver {
@@ -80,13 +80,13 @@ export class NowPaymentsResolver {
         }
     }
 
-    @Query(() => GetPaymentStatus)
+    @Query(() => GetPaymentStatusResponse)
     @UseMiddleware(isAuth)
-    async nowPaymentsStatus(
+    async nowPaymentsGetStatus(
         @Arg('id', () => String, {nullable: false}) payId: string
-    ): Promise<GetPaymentStatus> {
+    ): Promise<GetPaymentStatusResponse> {
         try {
-            log('nowPaymentsStatus', payId);
+            log('nowPaymentsGetStatus', payId);
 
             if (isEmpty(payId)) {
                 throw new Error('payment id cannot be empty');

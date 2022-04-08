@@ -74,3 +74,12 @@ export class CreatePaymentResponse {
     @Field(() => Transaction, {nullable: false})
     transaction: Transaction;
 }
+
+@ObjectType()
+export class GetPaymentStatusResponse {
+    @Field(() => GetPaymentStatus, {nullable: false})
+    payment: GetPaymentStatus;
+
+    @Field(() => Transaction, {nullable: false})
+    transaction: Transaction;
+}

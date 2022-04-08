@@ -129,7 +129,9 @@ export const findNowPaymentTransaction = async (sourceId: string): Promise<Trans
  * @param id
  * @returns
  */
-export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusReturn> => {
+export const getPaymentStatus = async (
+    id: string
+): Promise<{payment: GetPaymentStatusReturn; transaction: Transaction}> => {
     try {
         const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
         const [errorPaymentStatus, paymentStatus] = await awaitTo(api.getStatus(id));
@@ -137,20 +139,21 @@ export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusRetu
             throw errorPaymentStatus;
         }
 
-        const existingPayment = await findNowPaymentTransaction('' + paymentStatus.payment_id);
-        if (!existingPayment) {
+        const existingTransaction = await findNowPaymentTransaction('' + paymentStatus.payment_id);
+        if (!existingTransaction) {
             throw new Error('Existing transaction not found');
         }
-        console.log('existing transaction', existingPayment);
+
+        log('existing transaction', existingTransaction);
 
         // update payment status
         // @ts-ignore
-        await TransactionModel.save({
-            ...existingPayment,
+        const updateTransaction = await TransactionModel.save({
+            ...existingTransaction,
             status: paymentStatus.payment_status,
         });
 
-        return paymentStatus;
+        return {transaction: updateTransaction, payment: paymentStatus};
     } catch (error) {
         log('error getPaymentStatus', error);
         return null;
