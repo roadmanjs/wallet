@@ -19,16 +19,6 @@ import {updateWallet} from '../../wallet';
 const sandbox = isNowPaymentsSandbox;
 
 /**
- * Get the payment status
- * @param id
- * @returns
- */
-export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusReturn> => {
-    const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
-    return await api.getStatus(id);
-};
-
-/**
  * Create a now payment
  * @param payment
  * @param owner
@@ -130,6 +120,38 @@ export const findNowPaymentTransaction = async (sourceId: string): Promise<Trans
         throw new Error('Transaction not found');
     } catch (error) {
         log('error finding nowpayments transaction');
+        return null;
+    }
+};
+
+/**
+ * Get the payment status
+ * @param id
+ * @returns
+ */
+export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusReturn> => {
+    try {
+        const api = new NowApi({apiKey: nowPaymentsKey, sandbox}); // your api key
+        const [errorPaymentStatus, paymentStatus] = await awaitTo(api.getStatus(id));
+        if (errorPaymentStatus) {
+            throw errorPaymentStatus;
+        }
+
+        const existingPayment = await findNowPaymentTransaction('' + paymentStatus.payment_id);
+        if (!existingPayment) {
+            throw new Error('Existing transaction not found');
+        }
+
+        // update payment status
+        // @ts-ignore
+        await TransactionModel.save({
+            ...existingPayment,
+            status: paymentStatus.payment_status,
+        });
+
+        return paymentStatus;
+    } catch (error) {
+        log('error getPaymentStatus', error);
         return null;
     }
 };
