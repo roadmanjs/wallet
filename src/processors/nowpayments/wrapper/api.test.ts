@@ -36,6 +36,6 @@ describe('NowPayments', () => {
         const paymentStatus = await getPaymentStatus(paymentId);
         console.log("paymentStatus", paymentStatus);
         
-        expect(paymentStatus.order_id).not.to.be.null;
+        expect(paymentStatus.payment.order_id).not.to.be.null;
     })
 });
