@@ -19,7 +19,7 @@ const TransactionPagination = getPagination(Transaction);
 @Resolver()
 export class TransactionResolver {
     // TODO move this couchset when byTime Updated
-    @Query(() => [TransactionPagination])
+    @Query(() => TransactionPagination)
     @UseMiddleware(isAuth)
     async transactions(
         @Ctx() ctx: ContextType,

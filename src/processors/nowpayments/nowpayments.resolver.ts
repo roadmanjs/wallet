@@ -99,8 +99,6 @@ export class NowPaymentsResolver {
             return null;
         }
     }
-
-    // todo nowPaymentsCreatePayment
 }
 
 export default NowPaymentsResolver;
