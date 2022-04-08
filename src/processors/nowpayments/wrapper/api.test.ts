@@ -1,9 +1,11 @@
+import "reflect-metadata";
 import 'mocha';
 
 import {isNowPaymentsSandbox, nowPaymentsKey} from '../config';
 
 import NowApi from './api';
 import {expect} from 'chai';
+import { getPaymentStatus } from '../nowpayments.methods';
 
 const api = new NowApi({apiKey: nowPaymentsKey, sandbox: isNowPaymentsSandbox});
 
@@ -30,8 +32,8 @@ describe('NowPayments', () => {
     // });
 
     it('it should get payment status', async () => {
-        const paymentId = "6231856604";
-        const paymentStatus = await api.getStatus(paymentId);
+        const paymentId = "5838721392";
+        const paymentStatus = await getPaymentStatus(paymentId);
         console.log("paymentStatus", paymentStatus);
         
         expect(paymentStatus.order_id).not.to.be.null;

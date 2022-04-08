@@ -107,7 +107,7 @@ export const createNowPaymentInvoice = async (
 export const findNowPaymentTransaction = async (sourceId: string): Promise<Transaction> => {
     try {
         const transactions = await TransactionModel.pagination({
-            select: '*',
+            select: '*', // just use selectors
             where: {
                 sourceId,
             },
@@ -141,6 +141,7 @@ export const getPaymentStatus = async (id: string): Promise<GetPaymentStatusRetu
         if (!existingPayment) {
             throw new Error('Existing transaction not found');
         }
+        console.log('existing transaction', existingPayment);
 
         // update payment status
         // @ts-ignore

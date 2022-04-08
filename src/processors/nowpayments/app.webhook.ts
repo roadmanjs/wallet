@@ -1,14 +1,9 @@
-import type {ICreateInvoice, ICreatePayment} from '@nowpaymentsio/nowpayments-api-js/src/types';
-import {
-    createNowPayment,
-    createNowPaymentInvoice,
-    fulfillNowPayment,
-    getPaymentStatus,
-} from './nowpayments.methods';
+import {createNowPayment, fulfillNowPayment, getPaymentStatus} from './nowpayments.methods';
 import express, {Router} from 'express';
 import {nowPaymentsCallbackUrl, nowPaymentsSecretIPN} from './config';
 
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
+import type {ICreatePayment} from '@nowpaymentsio/nowpayments-api-js/src/types';
 import crypto from 'crypto';
 import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
@@ -75,40 +70,40 @@ export const nowpaymentsExpressify = (): Router => {
     });
 
     // for stripe checkout flow
-    app.post('/createinvoice', async (req, res) => {
-        // TODO verify body
-        const {
-            owner,
-            price_amount = 10,
-            price_currency,
-            ipn_callback_url = nowPaymentsCallbackUrl,
-            order_id = `${owner}-${uuidv4()}`,
-            order_description = `${order_id}-Payment`,
-            success_url,
-            cancel_url,
-            ...otherArgs
-        } = req.body || {};
+    // app.post('/createinvoice', async (req, res) => {
+    //     // TODO verify body
+    //     const {
+    //         owner,
+    //         price_amount = 10,
+    //         price_currency,
+    //         ipn_callback_url = nowPaymentsCallbackUrl,
+    //         order_id = `${owner}-${uuidv4()}`,
+    //         order_description = `${order_id}-Payment`,
+    //         success_url,
+    //         cancel_url,
+    //         ...otherArgs
+    //     } = req.body || {};
 
-        const createInvoice: ICreateInvoice = {
-            price_amount,
-            price_currency,
-            ipn_callback_url,
-            order_id,
-            order_description,
-            success_url,
-            cancel_url,
-            ...otherArgs,
-        };
+    //     const createInvoice: ICreateInvoice = {
+    //         price_amount,
+    //         price_currency,
+    //         ipn_callback_url,
+    //         order_id,
+    //         order_description,
+    //         success_url,
+    //         cancel_url,
+    //         ...otherArgs,
+    //     };
 
-        log('createinvoice', {createInvoice, owner});
+    //     log('createinvoice', {createInvoice, owner});
 
-        try {
-            const {invoice, transaction} = await createNowPaymentInvoice(createInvoice, owner);
-            return res.json({invoice, transaction});
-        } catch (error) {
-            res.json({error: error && error.message});
-        }
-    });
+    //     try {
+    //         const {invoice, transaction} = await createNowPaymentInvoice(createInvoice, owner);
+    //         return res.json({invoice, transaction});
+    //     } catch (error) {
+    //         res.json({error: error && error.message});
+    //     }
+    // });
 
     /**
      * Full endpoint
