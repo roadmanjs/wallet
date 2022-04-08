@@ -3,7 +3,7 @@ import {Field, ObjectType} from 'couchset';
 import {Transaction} from '../../transactions';
 
 @ObjectType()
-export class GetPaymentStatus {
+export class NowPaymentsGetPaymentStatus {
     @Field(() => Number, {nullable: true})
     payment_id: number;
     @Field(() => String, {nullable: true})
@@ -37,7 +37,7 @@ export class GetPaymentStatus {
 }
 
 @ObjectType()
-export class CreatePayment {
+export class NowPaymentsCreatePayment {
     @Field(() => Number, {nullable: true})
     payment_id: number;
     @Field(() => String, {nullable: true})
@@ -68,8 +68,8 @@ export class CreatePayment {
 
 @ObjectType()
 export class CreatePaymentResponse {
-    @Field(() => CreatePayment, {nullable: false})
-    payment: CreatePayment;
+    @Field(() => NowPaymentsCreatePayment, {nullable: false})
+    payment: NowPaymentsCreatePayment;
 
     @Field(() => Transaction, {nullable: false})
     transaction: Transaction;
@@ -77,8 +77,8 @@ export class CreatePaymentResponse {
 
 @ObjectType()
 export class GetPaymentStatusResponse {
-    @Field(() => GetPaymentStatus, {nullable: false})
-    payment: GetPaymentStatus;
+    @Field(() => NowPaymentsGetPaymentStatus, {nullable: false})
+    payment: NowPaymentsGetPaymentStatus;
 
     @Field(() => Transaction, {nullable: false})
     transaction: Transaction;
