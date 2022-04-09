@@ -166,7 +166,9 @@ export const fulfillNowPayment = async (
     verbose('Fulfilling paymentStatusData', paymentStatusData);
 
     try {
-        const {pay_amount: amount, order_id: sourceId = ''} = paymentStatusData;
+        const {pay_amount: amount, payment_id} = paymentStatusData;
+
+        const sourceId = `${payment_id}`;
 
         if (amount) {
             // find the waiting transaction and delete it
