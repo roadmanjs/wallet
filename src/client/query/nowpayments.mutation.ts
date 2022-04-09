@@ -4,7 +4,7 @@ import gql from 'graphql-tag';
 
 export const NOWPAYMENTS_CREATE_PAYMENT = gql`
     mutation NowPaymentsCreatePayment($amount: Float!, $order_description: String) {
-        nowPaymentsCreatePayment(amount: $id, order_description: $order_description) {
+        nowPaymentsCreatePayment(amount: $amount, order_description: $order_description) {
             payment {
                 ...NowPaymentsCreatePaymentFragment
             }
