@@ -166,7 +166,8 @@ export const fulfillNowPayment = async (
     verbose('Fulfilling paymentStatusData', paymentStatusData);
 
     try {
-        const {pay_amount: amount, payment_id} = paymentStatusData;
+        // TODO always USD
+        const {price_amount: amount, payment_id} = paymentStatusData;
 
         const sourceId = `${payment_id}`;
 
@@ -174,6 +175,7 @@ export const fulfillNowPayment = async (
             // find the waiting transaction and delete it
             // if waiting transaction does not exist, then this is a duplicate notification
 
+            // TODO verify if requested from waiting is equal to what we have from webhhok
             const [errorWaitingTransaction, waitingTransaction] = await awaitTo(
                 findNowPaymentTransaction(sourceId)
             );
