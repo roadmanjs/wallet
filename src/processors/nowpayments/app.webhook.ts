@@ -1,6 +1,6 @@
 import {createNowPayment, fulfillNowPayment, getPaymentStatus} from './nowpayments.methods';
 import express, {Router} from 'express';
-import {nowPaymentsCallbackUrl, nowPaymentsSecretIPN} from './config';
+import {isDev, nowPaymentsCallbackUrl, nowPaymentsSecretIPN} from './config';
 
 import type {GetPaymentStatusReturn} from '@nowpaymentsio/nowpayments-api-js/src/actions/get-payment-status';
 import type {ICreatePayment} from '@nowpaymentsio/nowpayments-api-js/src/types';
@@ -111,20 +111,22 @@ export const nowpaymentsExpressify = (): Router => {
     app.post('/webhook', async (request: any, response: any) => {
         const payload: GetPaymentStatusReturn = request.body;
 
-        const signatureFromHeader = request.headers['x-nowpayments-sig'];
+        if (!isDev) {
+            // Verify the signature
+            try {
+                const signatureFromHeader = request.headers['x-nowpayments-sig'];
+                // TODO needs to be tested
+                const hmac = crypto.createHmac('sha512', nowPaymentsSecretIPN);
+                hmac.update(JSON.stringify(payload, Object.keys(payload).sort()));
+                const signedSignature = hmac.digest('hex');
 
-        try {
-            // TODO needs to be tested
-            const hmac = crypto.createHmac('sha512', nowPaymentsSecretIPN);
-            hmac.update(JSON.stringify(payload, Object.keys(payload).sort()));
-            const signedSignature = hmac.digest('hex');
-
-            if (signatureFromHeader !== signedSignature) {
-                throw new Error('Signature does not match like from Nowpayments');
+                if (signatureFromHeader !== signedSignature) {
+                    throw new Error('Signature does not match like from Nowpayments');
+                }
+            } catch (err) {
+                // catchError(err);
+                return response.status(400).send(`Webhook Error: ${err.message}`);
             }
-        } catch (err) {
-            // catchError(err);
-            return response.status(400).send(`Webhook Error: ${err.message}`);
         }
 
         switch (payload.payment_status) {
