@@ -12,6 +12,15 @@ export const stripeRoadman = async (roadmanArgs: RoadmanBuild) => {
         log('Cannot enable stripe, keys are missing');
     } else {
         log('Stripe enabled');
+
+        roadmanArgs.app.use(
+            express.json({
+                verify: (req: any, res, buf) => {
+                    req.rawBody = buf;
+                },
+            })
+        );
+
         roadmanArgs.app.use('/stripe/webhook', express.raw({type: '*/*'}));
         roadmanArgs.app.use('/stripe', expressifyStripe());
     }

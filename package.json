@@ -1,6 +1,6 @@
 {
     "name": "@roadmanjs/wallet",
-    "version": "0.0.24",
+    "version": "0.0.27",
     "description": "A very Wallet",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -25,6 +25,7 @@
         "test": "mocha src/*test.ts --exit",
         "coinbase": "mocha src/processors/coinbase/rest/*test.ts --exit",
         "nowpayments": "mocha src/processors/nowpayments/wrapper/*test.ts --exit",
+        "stripe": "mocha src/processors/stripe/*test.ts --exit",
         "eslint": "eslint ./src --fix --ext=ts"
     },
     "lint-staged": {
@@ -85,6 +86,6 @@
         "dotenv": "^8.2.0",
         "lodash": "^4.17.20",
         "reflect-metadata": "^0.1.13",
-        "stripe": "^8.209.0"
+        "stripe": "^10.17.0"
     }
 }
