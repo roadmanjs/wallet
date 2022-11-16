@@ -92,14 +92,13 @@ export const expressifyStripe = (): Router => {
                 endpointSecret
             )) as any;
         } catch (err) {
-            // catchError(err);
+            log(`Error: webhook stripe ${err && err.message}`);
             return response.status(400).send(`Webhook Error: ${err.message}`);
         }
 
         const session = event.data.object;
 
-        // log event to amplitude
-        // logAmplitudeEvent(session);
+        log('webhook event = ' + JSON.stringify(event));
 
         switch (event.type) {
             case 'checkout.session.completed': {

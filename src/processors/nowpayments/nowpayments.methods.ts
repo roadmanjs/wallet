@@ -163,7 +163,7 @@ export const getPaymentStatus = async (
 export const fulfillNowPayment = async (
     paymentStatusData: GetPaymentStatusReturn
 ): Promise<void> => {
-    verbose('Fulfilling paymentStatusData', paymentStatusData);
+    verbose('Fulfilling fulfillNowPayment paymentStatusData', paymentStatusData);
 
     try {
         // TODO always USD

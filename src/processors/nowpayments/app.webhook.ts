@@ -111,6 +111,7 @@ export const nowpaymentsExpressify = (): Router => {
     app.post('/webhook', async (request: any, response: any) => {
         const payload: GetPaymentStatusReturn = request.body;
 
+        log('webhook nowpayments payload', payload);
         if (!isDev) {
             // Verify the signature
             try {
@@ -124,10 +125,12 @@ export const nowpaymentsExpressify = (): Router => {
                     throw new Error('Signature does not match like from Nowpayments');
                 }
             } catch (err) {
-                // catchError(err);
+                log(`Error: webhook nowpayments payload ${err && err.message}`);
                 return response.status(400).send(`Webhook Error: ${err.message}`);
             }
         }
+
+        log('webhook nowpayments verified', payload);
 
         switch (payload.payment_status) {
             case 'success': {
