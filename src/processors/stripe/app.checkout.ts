@@ -72,76 +72,76 @@ export const expressifyStripe = (): Router => {
     /**
      * Full endpoint stripe
      */
-    app.post('/webhook', async (request: any, response: any) => {
-        const payload = request.body;
-        const sig = request.headers['stripe-signature'];
+    app.post(
+        '/webhook',
+        express.raw({type: 'application/json'}),
+        async (request: any, response: any) => {
+            const payload = request.body;
+            const sig = request.headers['stripe-signature'];
 
-        log('sig = ' + JSON.stringify(sig));
-        log('endpointSecret = ' + endpointSecret);
-        log('webhook = ' + JSON.stringify(payload));
+            log('sig = ' + JSON.stringify(sig));
+            log('endpointSecret = ' + endpointSecret);
+            log('webhook = ' + JSON.stringify(payload));
 
-        // logAmplitudeEvent(payload);
+            // logAmplitudeEvent(payload);
 
-        let event: StripeResponseWebhook = payload;
+            let event: StripeResponseWebhook = payload;
 
-        try {
-            // @ts-ignore
-            event = stripe.webhooks.constructEvent(
-                request.rawBody || request.body,
-                sig,
-                endpointSecret
-            );
-        } catch (err) {
-            log(`Error: webhook stripe ${err && err.message}`);
-            return response.status(400).send(`Webhook Error: ${err.message}`);
-        }
+            try {
+                // @ts-ignore
+                event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+            } catch (err) {
+                log(`Error: webhook stripe ${err && err.message}`);
+                return response.status(400).send(`Webhook Error: ${err.message}`);
+            }
 
-        const session = event.data.object;
+            const session = event.data.object;
 
-        log('webhook event = ' + JSON.stringify(event));
+            log('webhook event = ' + JSON.stringify(event));
 
-        switch (event.type) {
-            case 'checkout.session.completed': {
-                // Save an order in your database, marked as 'awaiting payment'
-                // createOrder(session);
+            switch (event.type) {
+                case 'checkout.session.completed': {
+                    // Save an order in your database, marked as 'awaiting payment'
+                    // createOrder(session);
 
-                // Check if the order is paid (e.g., from a card payment)
-                //
-                // A delayed notification payment will have an `unpaid` status, as
-                // you're still waiting for funds to be transferred from the customer's
-                // account.
-                if (session.payment_status === 'paid') {
-                    // addToPaymentQueue(session);
-                    await fulfillStripePayment(session);
+                    // Check if the order is paid (e.g., from a card payment)
+                    //
+                    // A delayed notification payment will have an `unpaid` status, as
+                    // you're still waiting for funds to be transferred from the customer's
+                    // account.
+                    if (session.payment_status === 'paid') {
+                        // addToPaymentQueue(session);
+                        await fulfillStripePayment(session);
+                    }
+
+                    break;
                 }
 
-                break;
+                case 'checkout.session.async_payment_succeeded': {
+                    // const session = event.data.object;
+
+                    // Fulfill the purchase...
+                    // addToPaymentQueue(session);
+                    await fulfillStripePayment(session);
+
+                    break;
+                }
+
+                case 'checkout.session.async_payment_failed': {
+                    // const session = event.data.object;
+                    // TODO tell client transaction failed
+
+                    // Send an email to the customer asking them to retry their order
+                    // emailCustomerAboutFailedPayment(session);
+
+                    break;
+                }
             }
 
-            case 'checkout.session.async_payment_succeeded': {
-                // const session = event.data.object;
-
-                // Fulfill the purchase...
-                // addToPaymentQueue(session);
-                await fulfillStripePayment(session);
-
-                break;
-            }
-
-            case 'checkout.session.async_payment_failed': {
-                // const session = event.data.object;
-                // TODO tell client transaction failed
-
-                // Send an email to the customer asking them to retry their order
-                // emailCustomerAboutFailedPayment(session);
-
-                break;
-            }
+            // Return a response to acknowledge receipt of the event
+            response.json({received: true});
         }
-
-        // Return a response to acknowledge receipt of the event
-        response.json({received: true});
-    });
+    );
 
     return app;
 };
