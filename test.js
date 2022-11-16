@@ -11,5 +11,4 @@ const run = async () => {
         resolvers: [TransactionDefaultResolver]
     })
 }
-
 run();
