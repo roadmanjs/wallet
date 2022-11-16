@@ -1,4 +1,5 @@
 import {RoadmanBuild} from '@roadmanjs/core';
+import express from 'express';
 import {expressifyStripe} from './app.checkout';
 import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
@@ -11,6 +12,7 @@ export const stripeRoadman = async (roadmanArgs: RoadmanBuild) => {
         log('Cannot enable stripe, keys are missing');
     } else {
         log('Stripe enabled');
+        roadmanArgs.app.use('/stripe/webhook', express.raw({type: '*/*'}));
         roadmanArgs.app.use('/stripe', expressifyStripe());
     }
     return roadmanArgs;

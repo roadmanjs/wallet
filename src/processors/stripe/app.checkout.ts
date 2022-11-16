@@ -69,8 +69,6 @@ export const expressifyStripe = (): Router => {
 
         res.json({id: session.id});
     });
-
-    app.use('/webhook', express.raw({type: '*/*'}));
     /**
      * Full endpoint stripe
      */
