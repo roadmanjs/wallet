@@ -25,6 +25,7 @@
         "test": "mocha src/*test.ts --exit",
         "coinbase": "mocha src/processors/coinbase/rest/*test.ts --exit",
         "nowpayments": "mocha src/processors/nowpayments/wrapper/*test.ts --exit",
+        "btcpay": "mocha src/processors/btcpayserver/*test.ts --exit",
         "stripe": "mocha src/processors/stripe/*test.ts --exit",
         "eslint": "eslint ./src --fix --ext=ts"
     },
@@ -79,13 +80,16 @@
         "@roadmanjs/auth": "^0.0.23",
         "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.12",
+        "bull": "^4.11.3",
         "chalk": "^4.1.0",
         "coinbase": "^2.0.8",
         "couchset": "^0.0.17",
         "debug": "^4.3.1",
         "dotenv": "^8.2.0",
         "lodash": "^4.17.20",
+        "node-cron": "^3.0.2",
         "reflect-metadata": "^0.1.13",
+        "roadman": "^0.3.12",
         "stripe": "^10.17.0"
     }
 }

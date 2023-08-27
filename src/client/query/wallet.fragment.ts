@@ -6,6 +6,7 @@ export interface Wallet {
     updatedAt: Date;
     owner: string;
     currency: string;
+    address: string;
     amount: number;
 }
 
@@ -22,6 +23,7 @@ export const WalletFragment = gql`
         updatedAt
         owner
         currency
+        address
         amount
     }
 `;

@@ -22,10 +22,16 @@ export class Transaction {
     status = '';
 
     @Field(() => String, {nullable: true})
-    source = ''; // crypto paypal, credit card, interact
+    source = ''; // crypto wallet, paypal, credit card, interact
 
     @Field(() => String, {nullable: true})
-    sourceId?: string = ''; // paypal, credit card, interact
+    sourceId?: string = ''; // it's source id
+
+    @Field(() => String, {
+        nullable: true,
+        description: 'hash of the transaction, if source = crypto wallet',
+    })
+    transactionHash?: string = ''; // hash of the transaction
 
     @Field(() => String, {nullable: true})
     currency = '';
@@ -35,15 +41,5 @@ export class Transaction {
 }
 
 export const TransactionModel: Model = new Model(Transaction.name, {graphqlType: Transaction});
-
-// TODO use automatic transaction when couchset byTime is completed
-// export const {
-//     resolver: TransactionDefaultResolver, // there's going to be other custom resolvers
-//     pagination: TransactionPagination,
-//     client: TransactionClient,
-//     modelKeys: TransactionModelKeys,
-// } = TransactionModel.automate();
-
-// TODO automatic
 
 export default TransactionModel;
