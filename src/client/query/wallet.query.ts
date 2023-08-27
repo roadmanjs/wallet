@@ -1,4 +1,4 @@
-import {WalletFragment} from './wallet.fragment';
+import {WalletOutputFragment} from './wallet.fragment';
 import gql from 'graphql-tag';
 
 // Manually define fragments
@@ -8,8 +8,8 @@ import gql from 'graphql-tag';
 export const MY_WALLET_QUERY = gql`
     query MyWallets($currency: [String!]) {
         myWallets(currency: $currency) {
-            ...WalletFragment
+            ...WalletOutputFragment
         }
     }
-    ${WalletFragment}
+    ${WalletOutputFragment}
 `;
