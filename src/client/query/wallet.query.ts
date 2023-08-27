@@ -7,7 +7,7 @@ import gql from 'graphql-tag';
 
 export const MY_WALLET_QUERY = gql`
     query MyWallets($currency: [String!]) {
-        myWallets(currency: $currency) {
+        data: myWallets(currency: $currency) {
             ...WalletOutputFragment
         }
     }

@@ -32,7 +32,7 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
               SELECT *
                   FROM \`${bucket}\` wallet
                   LEFT JOIN \`${bucket}\` owner ON KEYS wallet.owner
-                  LEFT JOIN \`${bucket}\` address ON KEYS orders.address
+                  LEFT JOIN \`${bucket}\` address ON KEYS wallet.address
                   WHERE wallet._type = "${walletModelName}"
                   AND wallet.owner = "${owner}"
                   AND wallet.currency = "${currency}"

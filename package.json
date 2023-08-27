@@ -1,6 +1,6 @@
 {
     "name": "@roadmanjs/wallet",
-    "version": "0.0.37",
+    "version": "0.0.39",
     "description": "A very Wallet",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -78,6 +78,7 @@
     "dependencies": {
         "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
         "@roadmanjs/auth": "^0.0.23",
+        "@roadmanjs/auth-client": "^0.0.32",
         "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.12",
         "bull": "^4.11.3",
