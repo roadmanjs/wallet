@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {log} from '@roadmanjs/logs';
 
 interface Vin {
     txid: string;
@@ -69,7 +70,7 @@ export const getTxAddressFromBlockchain = async (
             amount: vout.value,
         }));
     } catch (error) {
-        console.error('Error getting transaction:', error);
+        log('Error getting transaction:', error);
         return null;
     }
 };

@@ -1,3 +1,4 @@
+import {MempoolTxOut, getTxAddressFromBlockchain} from './blockchain';
 import {WalletAddress, WalletAddressModel, updateWallet} from '../../wallet';
 import {add, isEmpty} from 'lodash';
 import {btcpayServerStore, btcpayServerToken, btcpayServerUrl} from './btcpayserver.config';
@@ -9,7 +10,6 @@ import {awaitTo} from 'couchset/dist/utils';
 // generateAddress
 // [cron] getAllTransactions -> settle
 import axios from 'axios';
-import {getTxAddressFromBlockchain} from './blockchain';
 
 // TODO to reflect btcpay transaction
 export interface BtcpayserverTransaction {
@@ -48,7 +48,7 @@ export const transactionExists = async (transactionHash: string): Promise<boolea
 
         return !isEmpty(existingTransaction);
     } catch (error) {
-        console.error('Error verifying transaction:', error);
+        log('Error transactionExists', error && error.message);
         return false;
     }
 };
@@ -171,23 +171,28 @@ export const btcPayServerProcessTransactions = async (transactions: Btcpayserver
 };
 
 // TODO
-export const verifyTransaction = async (transactionId: string): Promise<any> => {
+export const verifyTransaction = async (transactionId: string): Promise<MempoolTxOut[] | null> => {
     // get transaction using mempool.space, else kraken
     try {
         const txFromBlockchain = await getTxAddressFromBlockchain(transactionId);
         if (isEmpty(txFromBlockchain)) {
             throw new Error('transaction not found in blockchain');
         }
-
         return txFromBlockchain;
     } catch (error) {
         console.error('Error verifying transaction:', error);
-        return false;
+        return null;
     }
 };
 
 export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Promise<void> => {
     verbose('Fulfilling btcpayserver', payment);
+
+    const markAsProcessed = async (transactionHash: string) => {
+        // push to local queue, as it has been processed, to avoid checking it again
+        log('markAsProcessed ', transactionHash);
+        localProcessedTransactions.push(transactionHash);
+    };
 
     try {
         const {amount: txAmount, transactionHash} = payment;
@@ -201,8 +206,10 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
         }
 
         // existing transaction, if not duplicate
-        const existingTransaction = await transactionExists(transactionHash);
-        if (existingTransaction) {
+        const [existingTransactionError, existingTransaction] = await awaitTo(
+            transactionExists(transactionHash)
+        );
+        if (existingTransaction && !existingTransactionError) {
             throw new Error('transaction already exists = ' + transactionHash);
         }
 
@@ -220,6 +227,8 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
             throw new Error('tx not found');
         }
 
+        log('verifyTransaction confirmedTransaction = ', confirmedTransaction);
+
         await Promise.all(
             confirmedTransaction.map(async (tx) => {
                 // const {address} = tx;
@@ -227,16 +236,29 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                 const satoshiToBtc = satoshiAmount / 100000000;
 
                 if (isEmpty(address)) {
+                    log('wallet address is empty ', {address, satoshiAmount, satoshiToBtc});
                     return Promise.resolve({data: 'address is empty'});
                 }
 
                 // find wallet address
-                const addressWallet = await WalletAddressModel.findById(address);
-                if (isEmpty(addressWallet)) {
-                    throw new Error('wallet address not found = ' + address);
+                const [errorAddress, addressWallet] = await awaitTo(
+                    WalletAddressModel.findById(address)
+                );
+
+                if (isEmpty(addressWallet) || errorAddress) {
+                    log('wallet address not found = ' + address);
+                    markAsProcessed(transactionHash);
+                    return Promise.resolve({data: 'wallet address not found = ' + address});
                 }
 
                 const owner = addressWallet.owner;
+                log('updateWallet with', {
+                    satoshiToBtc,
+                    owner,
+                    address,
+                    addressWallet,
+                    transactionHash,
+                });
 
                 // this creates a new transaction
                 await updateWallet({
@@ -255,11 +277,11 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                 });
 
                 // push to local queue, as it has been processed, to avoid checking it again
-                localProcessedTransactions.push(transactionHash);
+                return markAsProcessed(transactionHash);
             })
         );
     } catch (error) {
-        log(`Error fullfilling btcpayserver transaction`, error);
+        log('Error fullfilling btcpayserver transaction', error);
         return null;
     }
 };
