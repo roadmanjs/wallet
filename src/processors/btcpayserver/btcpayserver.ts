@@ -48,7 +48,7 @@ export const transactionExists = async (transactionHash: string): Promise<boolea
 
         return !isEmpty(existingTransaction);
     } catch (error) {
-        log('Error transactionExists', error);
+        log('Error transactionExists', error && error.message);
         return false;
     }
 };
@@ -190,6 +190,7 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
 
     const markAsProcessed = async (transactionHash: string) => {
         // push to local queue, as it has been processed, to avoid checking it again
+        log('markAsProcessed ', transactionHash);
         localProcessedTransactions.push(transactionHash);
     };
 
@@ -226,6 +227,8 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
             throw new Error('tx not found');
         }
 
+        log('verifyTransaction confirmedTransaction = ', confirmedTransaction);
+
         await Promise.all(
             confirmedTransaction.map(async (tx) => {
                 // const {address} = tx;
@@ -233,18 +236,29 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                 const satoshiToBtc = satoshiAmount / 100000000;
 
                 if (isEmpty(address)) {
+                    log('wallet address is empty ', {address, satoshiAmount, satoshiToBtc});
                     return Promise.resolve({data: 'address is empty'});
                 }
 
                 // find wallet address
-                const addressWallet = await WalletAddressModel.findById(address);
-                if (isEmpty(addressWallet)) {
-                    // TODO mark as processed
-                    // return markAsProcessed(transactionHash);
-                    return log('wallet address not found = ' + address);
+                const [errorAddress, addressWallet] = await awaitTo(
+                    WalletAddressModel.findById(address)
+                );
+
+                if (isEmpty(addressWallet) || errorAddress) {
+                    log('wallet address not found = ' + address);
+                    markAsProcessed(transactionHash);
+                    return Promise.resolve({data: 'wallet address not found = ' + address});
                 }
 
                 const owner = addressWallet.owner;
+                log('updateWallet with', {
+                    satoshiToBtc,
+                    owner,
+                    address,
+                    addressWallet,
+                    transactionHash,
+                });
 
                 // this creates a new transaction
                 await updateWallet({
