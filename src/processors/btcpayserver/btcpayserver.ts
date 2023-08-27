@@ -190,9 +190,9 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
     verbose('Fulfilling btcpayserver', payment);
 
     try {
-        const {amount, blockHash: transactionHash} = payment;
+        const {amount: txAmount, transactionHash} = payment;
 
-        if (isEmpty(amount)) {
+        if (isEmpty(txAmount)) {
             throw new Error('amount cannot be empty');
         }
 
@@ -222,9 +222,9 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
 
         await Promise.all(
             confirmedTransaction.map(async (tx) => {
-                const {address} = tx;
-                // const { address, amount: satoshiAmount } = tx;
-                // TODO amount is in satoshi, convert to btc
+                // const {address} = tx;
+                const {address, amount: satoshiAmount} = tx;
+                const satoshiToBtc = satoshiAmount / 100000000;
 
                 if (isEmpty(address)) {
                     return Promise.resolve({data: 'address is empty'});
@@ -241,7 +241,7 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                 // this creates a new transaction
                 await updateWallet({
                     owner,
-                    amount: +amount,
+                    amount: +satoshiToBtc,
                     source: WalletAddress.name,
                     sourceId: address,
                     currency: addressWallet.currency,
