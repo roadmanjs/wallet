@@ -59,6 +59,8 @@ export class Wallet {
 
 export const walletModelName = Wallet.name;
 
+@InputType('WalletOutputInput')
+@ObjectType()
 export class WalletOutput extends Wallet {
     @Field(() => UserType, {nullable: true, description: 'The owner object of the account'})
     owner: UserType;
