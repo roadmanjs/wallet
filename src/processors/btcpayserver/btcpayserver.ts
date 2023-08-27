@@ -205,7 +205,10 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
         }
 
         // existing transaction, if not duplicate
-        if (await transactionExists(transactionHash)) {
+        const [existingTransactionError, existingTransaction] = await awaitTo(
+            transactionExists(transactionHash)
+        );
+        if (existingTransaction && !existingTransactionError) {
             throw new Error('transaction already exists = ' + transactionHash);
         }
 
