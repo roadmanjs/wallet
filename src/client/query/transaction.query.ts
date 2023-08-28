@@ -9,7 +9,7 @@ export const TRANSACTIONS_QUERY = gql`
         $after: DateTime
         $limit: Float
     ) {
-        transactions(
+        data: transactions(
             filters: $filters
             sort: $sort
             before: $before
