@@ -39,7 +39,7 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
               `;
 
     const [errorFetching, data = []] = await awaitTo(
-        WalletModel.customQuery<WalletOutput>({
+        WalletModel.customQuery<WalletOutput & {wallet: Wallet}>({
             limit: 1,
             query,
             params: {
@@ -56,7 +56,7 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
     const [rows = []] = data;
 
     const wallets = rows.map((d) => {
-        const {address, owner, ...wallet} = d;
+        const {address, owner, wallet} = d;
         return WalletModel.parse({...wallet, address, owner});
     });
 
