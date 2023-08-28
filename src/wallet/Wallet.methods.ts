@@ -139,7 +139,8 @@ interface IUpdateWallet {
  * @returns
  */
 export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWallet> => {
-    const {owner, amount, source, sourceId, message, currency, transactionHash} = args;
+    const {owner, amount, source, sourceId, message, currency = 'USD', transactionHash} = args;
+    const CURRENCY = currency.toUpperCase();
 
     try {
         log('updateUserWallet', JSON.stringify({owner, amount, source, sourceId, message}));
@@ -155,7 +156,7 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
                 type: transType, // withdraw or deposit
                 source: source || '', // paypal, credit card, interact
                 sourceId: sourceId || '', // paypal, credit card, interact
-                currency: 'USD',
+                currency: CURRENCY,
                 amount,
                 status: StatusType.SUCCESS,
                 transactionHash,

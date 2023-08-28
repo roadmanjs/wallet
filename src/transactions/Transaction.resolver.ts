@@ -14,6 +14,8 @@ import TransactionModel, {Transaction} from './Transaction.model';
 import {ContextType, isAuth} from '@roadmanjs/auth';
 import {CouchbaseConnection, getPagination} from 'couchset';
 import {awaitTo} from 'couchset/dist/utils';
+import {isEmpty} from 'lodash';
+import querystring from 'querystring';
 
 const TransactionPagination = getPagination(Transaction);
 @Resolver()
@@ -23,7 +25,7 @@ export class TransactionResolver {
     @UseMiddleware(isAuth)
     async transactions(
         @Ctx() ctx: ContextType,
-        @Arg('filter', () => String, {nullable: true}) filter?: string,
+        @Arg('filters', () => String, {nullable: true}) filters?: string,
         @Arg('sort', () => String, {nullable: true}) sortArg?: string,
         @Arg('before', () => Date, {nullable: true}) before?: Date,
         @Arg('after', () => Date, {nullable: true}) after?: Date,
@@ -38,10 +40,18 @@ export class TransactionResolver {
         const limit = limitArg || 10;
         const limitPassed = limit + 1; // adding +1 for hasNext
 
+        let allFilters: any = [];
+        if (!isEmpty(filters)) {
+            const filtersQuery = querystring.parse(filters || '');
+            allFilters = Object.keys(filtersQuery).map((key) => {
+                return {key, value: filtersQuery[key]};
+            });
+        }
+
         const copyParams = pickBy(
             {
                 sort,
-                filter,
+                filters,
                 before,
                 after,
                 owner,
@@ -55,7 +65,13 @@ export class TransactionResolver {
               SELECT *
                   FROM \`${bucket}\` trans
                   WHERE trans._type = "${transactionModelName}"
-                  ${filter ? `AND trans.type = "${filter}"` : ''}
+                  ${
+                      !isEmpty(filters)
+                          ? `${allFilters
+                                .map((filter: any) => `AND trans.${filter.key}="${filter.value}"`)
+                                .join(' ')}`
+                          : ''
+                  }
                   AND trans.owner = "${owner}"
                   AND trans.createdAt ${sign} "${time.toISOString()}"
                   ORDER BY trans.createdAt ${sort}
