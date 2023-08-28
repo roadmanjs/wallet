@@ -80,8 +80,16 @@ export const createWalletAddress = async (
     owner: string,
     currency: string
 ): Promise<WalletAddress | null> => {
-    const CURRENCY = currency.toUpperCase();
     try {
+        if (isEmpty(owner) || isEmpty(currency)) throw new Error('error creating wallet address');
+
+        const CURRENCY = currency.toUpperCase();
+        // the wallet must exist
+        const wallet = await createFindWallet({owner, currency: CURRENCY, createNew: true});
+        if (isEmpty(wallet)) {
+            throw new Error('error creating wallet address');
+        }
+
         // TODO other cryptos
 
         // BTC
@@ -95,6 +103,12 @@ export const createWalletAddress = async (
         };
 
         const createdWalletAddress = await WalletAddressModel.create(newWalletAddress);
+
+        await WalletModel.updateById(wallet.id, {
+            ...wallet,
+            owner,
+            address: createdWalletAddress.id,
+        });
 
         return createdWalletAddress;
     } catch (error) {
