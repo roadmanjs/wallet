@@ -44,7 +44,7 @@ export class WalletResolver {
     @UseMiddleware(isAuth)
     async getWalletAddress(
         @Ctx() ctx: ContextType,
-        @Arg('currency', () => WalletAddress, {nullable: false}) currency: string,
+        @Arg('currency', () => String, {nullable: false}) currency: string,
         @Arg('forceGenerate', () => Boolean, {
             nullable: true,
             description: 'if true, will not check if existing has not been used before',
