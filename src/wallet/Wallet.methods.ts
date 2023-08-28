@@ -19,11 +19,11 @@ import {log} from '@roadmanjs/logs';
 interface FindWallet {
     owner: string;
     currency: string;
-    create?: boolean;
+    createNew?: boolean;
 }
 
 export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> => {
-    const {owner, currency, create = false} = args;
+    const {owner, currency, createNew = false} = args;
     // create wallet if not exist
 
     const bucket = CouchbaseConnection.Instance.bucketName;
@@ -62,7 +62,7 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
 
     if (!isEmpty(wallets)) {
         return wallets.pop();
-    } else if (create) {
+    } else if (createNew) {
         const newWallet: Wallet = {
             owner,
             currency,
@@ -148,7 +148,7 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
             };
 
             // getById
-            const getWallet = await createFindWallet({owner, currency, create: true});
+            const getWallet = await createFindWallet({owner, currency, createNew: false});
 
             const currentBalance = getWallet.amount;
             const newBalance = currentBalance + amount;

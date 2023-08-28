@@ -12,7 +12,8 @@ export class WalletResolver {
     @UseMiddleware(isAuth)
     async myWallets(
         @Ctx() ctx: ContextType,
-        @Arg('currency', () => [String], {nullable: true}) currencies: string[]
+        @Arg('currency', () => [String], {nullable: false}) currencies: string[],
+        @Arg('createNew', () => Boolean, {nullable: true, defaultValue: false}) createNew?: boolean
     ): Promise<WalletOutput[]> {
         const owner = _get(ctx, 'payload.userId', '');
 
@@ -23,7 +24,7 @@ export class WalletResolver {
                     return createFindWallet({
                         owner,
                         currency,
-                        create: true,
+                        createNew,
                     });
                 })
             );
