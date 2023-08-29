@@ -5,9 +5,9 @@ import {ObjectType, Field} from 'couchset';
 import {fetchRates} from './btcpayserver';
 
 @ObjectType()
-class BtcpayserverRates {
+export class BtcpayserverRates {
     @Field(() => String, {nullable: true})
-    currencyPair = '';
+    pair = '';
 
     @Field(() => Number, {nullable: true})
     rate = 0;
@@ -19,10 +19,9 @@ export class BtcpayserverResolver {
     @UseMiddleware(isAuth)
     // TODO: add a way to fetch multiple currency pairs
     async fetchRates(
-        @Arg('currencyPair', () => String, {
+        @Arg('pairs', () => String, {
             nullable: false,
-            description:
-                'e.g currencyPair=BTC_USD&currencyPair=BTC_EUR, The currency pairs to fetch rates for',
+            description: 'e.g BTC_USD,BTC_EUR The currency pairs to fetch rates for',
         })
         currencyPair: string
     ): Promise<BtcpayserverRates[]> {
