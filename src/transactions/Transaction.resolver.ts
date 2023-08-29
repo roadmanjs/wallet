@@ -35,7 +35,7 @@ export class TransactionResolver {
         const owner = _get(ctx, 'payload.userId', '');
         const bucket = CouchbaseConnection.Instance.bucketName;
         const sign = before ? '<=' : '>=';
-        const time = new Date(before || after);
+        const time = new Date(before || after || new Date());
         const sort = sortArg || 'DESC';
         const limit = limitArg || 10;
         const limitPassed = limit + 1; // adding +1 for hasNext

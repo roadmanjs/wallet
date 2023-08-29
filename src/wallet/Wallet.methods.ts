@@ -162,20 +162,26 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
                 transactionHash,
             };
 
-            // getById
-            const getWallet = await createFindWallet({owner, currency, createNew: false});
+            const getWallet = await WalletModel.pagination({
+                where: {
+                    owner,
+                    currency: CURRENCY,
+                },
+            });
 
-            const currentBalance = getWallet.amount;
+            if (isEmpty(getWallet)) throw new Error('error getting user wallet');
+
+            const wallet = getWallet.shift();
+
+            const currentBalance = wallet.amount;
             const newBalance = currentBalance + amount;
 
-            // @ts-ignore
-            const updatedWallet = await WalletModel.save({
-                ...getWallet,
+            const updatedWallet = await WalletModel.updateById(wallet.id, {
+                ...wallet,
                 amount: newBalance,
             });
 
             const transactionCreated = await TransactionModel.create(newTransaction);
-            // TODO notifications
 
             log('successfully update user balance');
             return {transaction: transactionCreated, wallet: updatedWallet};

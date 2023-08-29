@@ -15,7 +15,7 @@ describe('Btcpayserver', () => {
     // });
 
     it('it should fetch rates', async () => {
-        const rates = await fetchRates("BTC_USD,BTC_EUR");
+        const rates = await fetchRates("BTC_USD,EUR_BTC");
         console.log('all stores', rates);
         expect(rates).to.be.not.null;
     });
