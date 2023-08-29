@@ -1,6 +1,6 @@
 {
     "name": "@roadmanjs/wallet",
-    "version": "0.0.48",
+    "version": "0.0.49",
     "description": "A very Wallet",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -27,7 +27,8 @@
         "nowpayments": "mocha src/processors/nowpayments/wrapper/*test.ts --exit",
         "btcpay": "mocha src/processors/btcpayserver/*test.ts --exit",
         "stripe": "mocha src/processors/stripe/*test.ts --exit",
-        "eslint": "eslint ./src --fix --ext=ts"
+        "eslint": "eslint ./src --fix --ext=ts",
+        "pub": "yarn publish 'dist-client/' --access=public && yarn publish --access=public"
     },
     "lint-staged": {
         "*.{ts,tsx}": [
