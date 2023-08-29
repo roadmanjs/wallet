@@ -6,3 +6,4 @@ export * from './transaction.query';
 export * from './nowpayments.fragment';
 export * from './nowpayments.query';
 export * from './nowpayments.mutation';
+export * from './btcpayserver.query';
