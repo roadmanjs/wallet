@@ -173,6 +173,8 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
 
             const wallet = getWallet.shift();
 
+            log('existing wallet', wallet);
+
             const currentBalance = wallet.amount;
             const newBalance = currentBalance + amount;
 
@@ -180,6 +182,8 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
                 ...wallet,
                 amount: newBalance,
             });
+
+            log('updatedWallet wallet', updatedWallet);
 
             const transactionCreated = await TransactionModel.create(newTransaction);
 

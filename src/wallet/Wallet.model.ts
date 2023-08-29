@@ -47,7 +47,11 @@ export class Wallet {
     @Field(() => String, {nullable: false, description: 'The owner of the account'})
     owner: UserType | string = '';
 
-    @Field(() => String, {nullable: true, description: 'The address of the wallet'})
+    @Field(() => String, {
+        nullable: true,
+        description: 'The address of the wallet',
+        defaultValue: '',
+    })
     address?: WalletAddress | string = '';
 
     @Field(() => String, {nullable: true, description: 'The currency of the wallet'})
