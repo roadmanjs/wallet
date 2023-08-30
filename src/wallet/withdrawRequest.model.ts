@@ -1,6 +1,6 @@
 import {Field, InputType, Model, ObjectType, getPagination} from 'couchset';
-import {UserType} from '@roadmanjs/auth';
 
+import {UserType} from '@roadmanjs/auth';
 import {Wallet} from './Wallet.model';
 
 export const WithdrawRequestModelName = 'WithdrawRequest';
@@ -92,5 +92,3 @@ export const WithdrawRequestModel: Model = new Model(WithdrawRequestModelName, {
 });
 
 export default WithdrawRequestModel;
-
-export {resolver as WithdrawRequestDefaultResolver};
