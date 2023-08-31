@@ -332,11 +332,12 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                                 status: WithdrawRequestStatus.completed,
                             }
                         );
-
                         log('withdrawRequest updated = ' + updatedWithdraw);
+                        markAsProcessed(transactionHash);
                         return Promise.resolve({data: updatedWithdraw});
                     }
                     log('withdrawRequests not found');
+                    markAsProcessed(transactionHash);
                     return Promise.resolve({data: 'withdrawal not supported yet'});
                 }
 
