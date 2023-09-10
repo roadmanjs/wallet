@@ -73,12 +73,13 @@
         "typescript": "^4.4.3"
     },
     "peerDependencies": {
+        "@roadmanjs/auth": ">=0.0.32",
         "couchset": ">=0.0.17",
         "typescript": ">=2.0"
     },
     "dependencies": {
         "@nowpaymentsio/nowpayments-api-js": "^1.0.5",
-        "@roadmanjs/auth": "^0.0.23",
+        "@roadmanjs/auth": "^0.0.32",
         "@roadmanjs/auth-client": "^0.0.32",
         "@roadmanjs/logs": "^0.0.1",
         "@roadmanjs/utils": "^0.0.12",
