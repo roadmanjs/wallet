@@ -2,7 +2,7 @@ import {Resolver, Query, Arg, UseMiddleware} from 'type-graphql';
 import {log} from '@roadmanjs/logs';
 import {isAuth} from '@roadmanjs/auth';
 import {ObjectType, Field} from 'couchset';
-import {fetchRates} from './btcpayserver';
+import {fetchRates} from './rates';
 
 @ObjectType()
 export class BtcpayserverRates {
@@ -17,7 +17,6 @@ export class BtcpayserverRates {
 export class BtcpayserverResolver {
     @Query(() => [BtcpayserverRates])
     @UseMiddleware(isAuth)
-    // TODO: add a way to fetch multiple currency pairs
     async fetchRates(
         @Arg('pairs', () => String, {
             nullable: false,
@@ -26,7 +25,7 @@ export class BtcpayserverResolver {
         currencyPair: string
     ): Promise<BtcpayserverRates[]> {
         try {
-            return await fetchRates(currencyPair);
+            return await fetchRates(currencyPair, true);
         } catch (error) {
             log('error fetching rates for ' + currencyPair, error);
             return [];

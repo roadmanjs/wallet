@@ -8,7 +8,7 @@ import {isEmpty} from 'lodash';
 
 @Resolver()
 export class WalletResolver {
-    @Query(() => [WalletOutput])
+    @Query(() => [WalletOutput], {nullable: true})
     @UseMiddleware(isAuth)
     async myWallets(
         @Ctx() ctx: ContextType,
@@ -18,6 +18,10 @@ export class WalletResolver {
         const owner = _get(ctx, 'payload.userId', '');
 
         try {
+            if (isEmpty(currencies)) {
+                throw new Error('No currencies provided');
+            }
+
             // fetch or create wallets using the provided currencies
             const wallets = await Promise.all(
                 currencies.map((currency) => {
@@ -72,14 +76,14 @@ export class WalletResolver {
 
                 if (walletAddress.transactions >= 1) {
                     const newWalletAddress = await createWalletAddress(owner, currency);
-                    return newWalletAddress;
+                    return WalletAddressModel.parse(newWalletAddress);
                 } else {
-                    return walletAddress;
+                    return WalletAddressModel.parse(walletAddress);
                 }
             }
 
             const newWalletAddress = await createWalletAddress(owner, currency);
-            return newWalletAddress;
+            return WalletAddressModel.parse(newWalletAddress);
         } catch (error) {
             log('error getting wallet address', error);
             return null;

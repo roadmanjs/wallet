@@ -91,34 +91,6 @@ export const fetchStores = async () => {
     }
 };
 
-export interface BtcpayserverRate {
-    pair: string;
-    rate: number;
-    errors?: any[];
-}
-
-export const fetchRates = async (pairs: string): Promise<BtcpayserverRate[]> => {
-    try {
-        const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/rates?currencyPair=${pairs
-            .split(',')
-            .join('&currencyPair=')}`;
-
-        const {data} = await axios.get(endpoint, {
-            headers: {
-                Authorization: `token ${btcpayServerToken}`,
-            },
-        });
-
-        return data.map((rate) => ({
-            pair: rate.currencyPair,
-            rate: +rate.rate,
-        }));
-    } catch (error) {
-        console.error('Error getting store rates:', error);
-        return [];
-    }
-};
-
 export const fetchStatus = async (currency: string) => {
     try {
         const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet?forceGenerate=true`;

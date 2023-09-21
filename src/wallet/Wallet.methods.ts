@@ -56,8 +56,10 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
     const [rows = []] = data;
 
     const wallets = rows.map((d) => {
-        const {address, owner, wallet} = d;
-        return WalletModel.parse({...wallet, address, owner});
+        const wallet = d.wallet ? WalletModel.parse(d.wallet) : null;
+        const address = d.address ? WalletAddressModel.parse(d.address) : null;
+        const owner = d.owner ? UserModel.parse(d.owner) : null;
+        return {...wallet, address, owner};
     });
 
     if (!isEmpty(wallets)) {
