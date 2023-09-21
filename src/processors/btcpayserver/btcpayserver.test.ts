@@ -2,10 +2,8 @@ import 'mocha';
 import "dotenv/config";
 import "reflect-metadata"
 
-import { createTransactions, fetchRates, fetchStatus, fetchStores, fetchTransactions, generateAddress } from "./btcpayserver";
-
 import { expect } from 'chai';
-import { getTxAddressFromBlockchain } from "./blockchain";
+import { fetchTransactions } from "./btcpayserver";
 
 const externalAddress = "399KPGqPiNqRygRtf6SYQUb5YHRH5BeWiz";
 
