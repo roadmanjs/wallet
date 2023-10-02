@@ -5,7 +5,7 @@ import {ObjectType, Field} from 'couchset';
 import {fetchRates} from './rates';
 
 @ObjectType()
-export class BtcpayserverRates {
+export class PairRate {
     @Field(() => String, {nullable: true})
     pair = '';
 
@@ -15,7 +15,7 @@ export class BtcpayserverRates {
 
 @Resolver()
 export class BtcpayserverResolver {
-    @Query(() => [BtcpayserverRates])
+    @Query(() => [PairRate])
     @UseMiddleware(isAuth)
     async fetchRates(
         @Arg('pairs', () => String, {
@@ -23,7 +23,7 @@ export class BtcpayserverResolver {
             description: 'e.g BTC_USD,BTC_EUR The currency pairs to fetch rates for',
         })
         currencyPair: string
-    ): Promise<BtcpayserverRates[]> {
+    ): Promise<PairRate[]> {
         try {
             return await fetchRates(currencyPair, true);
         } catch (error) {

@@ -38,6 +38,9 @@ export class Transaction {
 
     @Field(() => Number, {nullable: true})
     amount = 0;
+
+    @Field(() => Number, {nullable: true})
+    feePerc?: number = 0;
 }
 
 export const TransactionModel: Model = new Model(Transaction.name, {graphqlType: Transaction});
