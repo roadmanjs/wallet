@@ -20,6 +20,25 @@ import querystring from 'querystring';
 const TransactionPagination = getPagination(Transaction);
 @Resolver()
 export class TransactionResolver {
+    @Query(() => Transaction, {nullable: true})
+    @UseMiddleware(isAuth)
+    async transactionById(
+        // @Ctx() ctx: ContextType,
+        @Arg('id', () => String, {nullable: false}) id?: string
+    ): Promise<Transaction | null> {
+        try {
+            // if owner = transaction owner
+            const transaction = await TransactionModel.findById(id || '');
+            if (isEmpty(transaction)) {
+                throw new Error('Transaction not found');
+            }
+            return transaction;
+        } catch (error) {
+            log('error getting transactions', error);
+            return null;
+        }
+    }
+
     // TODO move this couchset when byTime Updated
     @Query(() => TransactionPagination)
     @UseMiddleware(isAuth)

@@ -31,3 +31,12 @@ export const TRANSACTIONS_GET_QUERY = gql`
     }
     ${TransactionFragment}
 `;
+
+export const GET_TRANSACTIONS_BY_ID_QUERY = gql`
+    query TransactionById($id: String!) {
+        data: transactionById(id: $id) {
+            ...TransactionFragment
+        }
+    }
+    ${TransactionFragment}
+`;
