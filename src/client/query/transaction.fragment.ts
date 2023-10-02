@@ -11,6 +11,7 @@ export interface Transaction {
     currency: string;
     amount: number;
     transactionHash?: string;
+    feePerc?: number;
 }
 
 export interface TransactionPagination {
@@ -33,6 +34,7 @@ export const TransactionFragment = gql`
         sourceId
         currency
         transactionHash
+        feePerc
     }
 `;
 

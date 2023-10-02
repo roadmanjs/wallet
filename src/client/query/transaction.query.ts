@@ -1,4 +1,5 @@
-import {TransactionPaginationFragment} from './transaction.fragment';
+import {TransactionFragment, TransactionPaginationFragment} from './transaction.fragment';
+
 import gql from 'graphql-tag';
 
 export const TRANSACTIONS_QUERY = gql`
@@ -20,4 +21,13 @@ export const TRANSACTIONS_QUERY = gql`
         }
     }
     ${TransactionPaginationFragment}
+`;
+
+export const TRANSACTIONS_GET_QUERY = gql`
+    query Transactions($owner: String, $id: String!) {
+        data: transactionGet(id: $id, owner: $owner) {
+            ...TransactionFragment
+        }
+    }
+    ${TransactionFragment}
 `;
