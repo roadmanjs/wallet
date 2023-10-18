@@ -2,9 +2,10 @@ import {Resolver, Query, Arg, UseMiddleware, Ctx, Mutation} from 'type-graphql';
 import _get from 'lodash/get';
 import {log} from '@roadmanjs/logs';
 import {ContextType, isAuth} from '@roadmanjs/auth';
-import {WalletAddress, WalletAddressModel, WalletOutput} from './Wallet.model';
+import {WalletAddressModel, WalletOutput} from './Wallet.model';
 import {createFindWallet, createWalletAddress} from './Wallet.methods';
 import {isEmpty} from 'lodash';
+import {ResType} from 'couchset';
 
 @Resolver()
 export class WalletResolver {
@@ -41,10 +42,7 @@ export class WalletResolver {
     }
 
     // generate a new address for the wallet
-    @Mutation(() => WalletAddress, {
-        nullable: true,
-        description: 'Crypto only: Generate a new address for the wallet',
-    })
+    @Mutation(() => ResType)
     @UseMiddleware(isAuth)
     async getWalletAddress(
         @Ctx() ctx: ContextType,
@@ -54,7 +52,7 @@ export class WalletResolver {
             description: 'if true, will not check if existing has not been used before',
         })
         forceGenerate = false
-    ): Promise<WalletAddress | null> {
+    ): Promise<ResType> {
         const owner = _get(ctx, 'payload.userId', '');
 
         // check if wallet has existing address, WalletAddress.transactions === 0, if >=1 generate new address
@@ -74,19 +72,18 @@ export class WalletResolver {
 
                 const walletAddress = existingWalletAddress[0];
 
-                if (walletAddress.transactions >= 1) {
-                    const newWalletAddress = await createWalletAddress(owner, currency);
-                    return WalletAddressModel.parse(newWalletAddress);
-                } else {
-                    return WalletAddressModel.parse(walletAddress);
+                if (walletAddress.transactions < 1) {
+                    throw new Error(
+                        'Address has not been used before, use it then, generate a new one'
+                    );
                 }
             }
 
             const newWalletAddress = await createWalletAddress(owner, currency);
-            return WalletAddressModel.parse(newWalletAddress);
+            return {data: WalletAddressModel.parse(newWalletAddress), success: true};
         } catch (error) {
             log('error getting wallet address', error);
-            return null;
+            return {message: error?.message, success: false};
         }
     }
 }
