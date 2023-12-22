@@ -7,14 +7,37 @@ import {
     WalletOutput,
     walletModelName,
 } from './Wallet.model';
+import {
+    createTransactions as createTransactionsBtc,
+    generateAddress,
+    txDest,
+} from '../processors/btcpayserver/btcpayserver';
+import {createTransactionsXmr, generateAddressXmr} from '../processors/monerox/monerox';
 
 import {CouchbaseConnection} from 'couchset';
 import {StatusType} from '../shared/enums';
 import {UserModel} from '@roadmanjs/auth';
 import {awaitTo} from 'couchset/dist/utils';
-import {generateAddress} from '../processors/btcpayserver/btcpayserver';
 import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
+
+// createTransactions
+export const walletAddressApi = {
+    BTC: generateAddress,
+    XMR: generateAddressXmr,
+};
+
+export const walletTxApi = {
+    BTC: createTransactionsBtc,
+
+    /**
+     *
+     * @param _cur
+     * @param dest only one destination is allowed
+     * @returns
+     */
+    XMR: (_cur: string, dest: txDest[]) => createTransactionsXmr(dest[0]),
+};
 
 interface FindWallet {
     owner: string;
@@ -92,14 +115,14 @@ export const createWalletAddress = async (
             throw new Error('error creating wallet address');
         }
 
-        // TODO other cryptos
+        const api = walletAddressApi[CURRENCY];
+        const newAddress = await api(CURRENCY);
 
-        // BTC
-        const newBtcAddress = await generateAddress(CURRENCY);
+        if (isEmpty(newAddress)) throw new Error('error creating wallet address');
 
         const newWalletAddress: WalletAddress = {
             owner,
-            id: newBtcAddress.address,
+            id: newAddress.address,
             currency: CURRENCY,
             transactions: 0,
         };

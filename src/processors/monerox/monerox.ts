@@ -91,7 +91,7 @@ export interface IncomingTransfer {
 
 // getTx, sendTx, address
 
-export const generateAddress = async (): Promise<{address: string} | null> => {
+export const generateAddressXmr = async (): Promise<{address: string} | null> => {
     const endpoint = `/wallet/${moneroxWallet}/address`;
 
     try {
@@ -112,7 +112,7 @@ export const generateAddress = async (): Promise<{address: string} | null> => {
     }
 };
 
-export const createTransactions = async (destinations: txDest): Promise<any> => {
+export const createTransactionsXmr = async (destinations: txDest): Promise<any> => {
     try {
         const endpoint = `/wallet/${moneroxWallet}/send`;
 
@@ -133,7 +133,7 @@ export const createTransactions = async (destinations: txDest): Promise<any> => 
     }
 };
 
-export const fetchTransactions = async () => {
+export const fetchTransactionsXmr = async () => {
     try {
         const endpoint = `/wallet/${moneroxWallet}/txs`;
 
