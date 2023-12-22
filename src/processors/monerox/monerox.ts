@@ -152,6 +152,10 @@ export const fetchTransactionsXmr = async () => {
         }
 
         // process transactions
+        if (!isEmpty(data)) {
+            await xmrProcessTransactions(data.data);
+        }
+
         return data.data;
     } catch (error) {
         console.error('Error generating transactions:', error);
@@ -195,11 +199,11 @@ export const xmrProcessTransactions = async (transactions: MoneroxTx[]) => {
 };
 
 export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
-    verbose('Fulfilling monero', payment);
+    verbose('monero: Fulfilling monero', payment);
 
     const markAsProcessed = async (transactionHash: string) => {
         // push to local queue, as it has been processed, to avoid checking it again
-        log('markAsProcessed ', transactionHash);
+        log('monero: markAsProcessed', transactionHash);
         localProcessedTransactions.push(transactionHash);
     };
 
@@ -232,13 +236,13 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
         }
 
         if (!isConfirmed) {
-            log('transaction not confirmed yet');
+            log('monero: transaction not confirmed yet');
             return null;
         }
 
         const isWithdrawal = +txAmount < 0;
 
-        log('isWithdrawal = ', isWithdrawal);
+        log('monero: isWithdrawal = ', isWithdrawal);
 
         if (isEmpty(txAmount)) {
             throw new Error('amount cannot be empty');
@@ -256,7 +260,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
             throw new Error('transaction already exists = ' + transactionHash);
         }
 
-        log('verifyTransaction confirmedTransaction = ', confirmedTransaction);
+        log('monero: verifyTransaction confirmedTransaction = ', confirmedTransaction);
 
         await Promise.all(
             confirmedTransaction.map(async (tx) => {
@@ -265,7 +269,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
                 const satoshiToBtc = satoshiAmount / 100000000;
 
                 if (isEmpty(address)) {
-                    log('wallet address is empty ', {address, satoshiAmount, satoshiToBtc});
+                    log('monero: wallet address is empty ', {address, satoshiAmount, satoshiToBtc});
                     return Promise.resolve({data: 'address is empty'});
                 }
 
@@ -282,7 +286,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
                     if (!isEmpty(withdrawRequests)) {
                         const withdrawRequest = withdrawRequests.pop();
 
-                        log('withdrawRequest = ' + withdrawRequest);
+                        log('monero: withdrawRequest = ' + withdrawRequest);
 
                         // update withdraw request
                         const updatedWithdraw = await WithdrawRequestModel.updateById(
@@ -292,11 +296,11 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
                                 status: WithdrawRequestStatus.completed,
                             }
                         );
-                        log('withdrawRequest updated = ' + updatedWithdraw);
+                        log('monero: withdrawRequest updated = ' + updatedWithdraw);
                         markAsProcessed(transactionHash);
                         return Promise.resolve({data: updatedWithdraw});
                     }
-                    log('withdrawRequests not found');
+                    log('monero: withdrawRequests not found');
                     markAsProcessed(transactionHash);
                     return Promise.resolve({data: 'withdrawal not supported yet'});
                 }
@@ -310,13 +314,13 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
                 );
 
                 if (isEmpty(addressWallet) || errorAddress) {
-                    log('wallet address not found = ' + address);
+                    log('monero: wallet address not found = ' + address);
                     markAsProcessed(transactionHash);
                     return Promise.resolve({data: 'wallet address not found = ' + address});
                 }
 
                 const owner = addressWallet.owner;
-                log('updateWallet with', {
+                log('monero: updateWallet with', {
                     satoshiToBtc,
                     owner,
                     address,
