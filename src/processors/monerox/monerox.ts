@@ -1,4 +1,4 @@
-import {WalletAddress, WalletAddressModel, updateWallet} from '../../wallet';
+import {WalletAddress, WalletAddressModel, updateWallet, walletSatoshiToUnit} from '../../wallet';
 import WithdrawRequestModel, {WithdrawRequestStatus} from '../../wallet/withdrawRequest.model';
 import {add, isEmpty} from 'lodash';
 import {awaitTo, log, verbose} from 'couchset/dist/utils';
@@ -201,6 +201,8 @@ export const xmrProcessTransactions = async (transactions: MoneroxTx[]) => {
 export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
     verbose('monero: Fulfilling monero', payment);
 
+    const CURRENCY = 'XMR';
+    const satoshiToUnit = walletSatoshiToUnit[CURRENCY];
     const markAsProcessed = async (transactionHash: string) => {
         // push to local queue, as it has been processed, to avoid checking it again
         log('monero: markAsProcessed', transactionHash);
@@ -244,7 +246,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
 
         log('monero: isWithdrawal = ', isWithdrawal);
 
-        if (isEmpty(txAmount)) {
+        if (!Number.isInteger(txAmount)) {
             throw new Error('amount cannot be empty');
         }
 
@@ -266,7 +268,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
             confirmedTransaction.map(async (tx) => {
                 // const {address} = tx;
                 const {address, amount: satoshiAmount} = tx;
-                const satoshiToBtc = satoshiAmount / 100000000;
+                const satoshiToBtc = satoshiAmount / satoshiToUnit;
 
                 if (isEmpty(address)) {
                     log('monero: wallet address is empty ', {address, satoshiAmount, satoshiToBtc});

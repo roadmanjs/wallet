@@ -39,6 +39,11 @@ export const walletTxApi = {
     XMR: (_cur: string, dest: txDest[]) => createTransactionsXmr(dest[0]),
 };
 
+export const walletSatoshiToUnit = {
+    BTC: 100000000,
+    XMR: 1000000000000,
+};
+
 interface FindWallet {
     owner: string;
     currency: string;
