@@ -1,171 +1,158 @@
-import {MempoolTxOut, getTxAddressFromBlockchain} from './blockchain';
 import {WalletAddress, WalletAddressModel, updateWallet} from '../../wallet';
 import WithdrawRequestModel, {WithdrawRequestStatus} from '../../wallet/withdrawRequest.model';
 import {add, isEmpty} from 'lodash';
-import {btcpayServerStore, btcpayServerToken, btcpayServerUrl} from './btcpayserver.config';
-import {log, verbose} from '@roadmanjs/logs';
+import {awaitTo, log, verbose} from 'couchset/dist/utils';
+import {moneroxUrl, moneroxWallet} from './monerox.config';
+import {transactionExists, txDest} from '../btcpayserver';
 
-import {TransactionModel} from '../../transactions';
-import {addTxToBtcQueue} from './btcpayserver.queue';
-import {awaitTo} from 'couchset/dist/utils';
-// generateAddress
-// [cron] getAllTransactions -> settle
+import {addTxToXmrQueue} from './monerox.queue';
 import axios from 'axios';
 
-// TODO to reflect btcpay transaction
-export interface BtcpayserverTransaction {
-    // transactionId: string; // hash of the transaction
-    // currency: string;
-    address: string;
-    amount: string; // The amount the wallet balance changed with this transaction
-    transactionHash: string; // The transaction id
-    comment: string; // A comment linked to the transaction
-    blockHash: string; // The hash of the block that confirmed this transaction.Null if still unconfirmed.
-    blockHeight: string; // The height of the block that confirmed this transaction.Null if still unconfirmed.
-    confirmations: string; // The number of confirmations for this transaction
-    timestamp: number; // The time of the transaction
-    status: string; // Enum: "Confirmed" "Unconfirmed"
+const moneroApi = axios.create({
+    baseURL: moneroxUrl,
+    headers: {'Content-Type': 'application/json'},
+});
+
+interface Res<T> {
+    success: boolean;
+    message: string;
+    data: T;
 }
 
-/**
- * find transaction by hash
- * @param transactionHash
- * @returns
- */
-export const transactionExists = async (transactionHash: string): Promise<boolean> => {
+export interface SentMoneroxTx {
+    isOutgoing: boolean;
+    isConfirmed: boolean;
+    numConfirmations: number;
+    inTxPool: boolean;
+    relay: boolean;
+    isRelayed: boolean;
+    isMinerTx: boolean;
+    isFailed: boolean;
+    isLocked: boolean;
+    ringSize: number;
+    outgoingTransfer: OutgoingTransfer;
+    unlockTime: string;
+    lastRelayedTimestamp: number;
+    isDoubleSpendSeen: boolean;
+    fee: string;
+    inputs: Input[];
+    fullHex: string;
+    hash: string;
+    key: string;
+    metadata: string;
+    weight: number;
+}
+
+export interface MoneroxTx {
+    isConfirmed: boolean;
+    inTxPool: boolean;
+    isRelayed: boolean;
+    relay: boolean;
+    isFailed: boolean;
+    isMinerTx: boolean;
+    numConfirmations: number;
+    isDoubleSpendSeen: boolean;
+    fee: string;
+    isLocked: boolean;
+    hash: string;
+    unlockTime: string;
+    isIncoming: boolean;
+    incomingTransfers: IncomingTransfer[];
+    outgoingTransfer: OutgoingTransfer;
+    isOutgoing: boolean;
+}
+
+export interface OutgoingTransfer {
+    amount: string;
+    destinations: Destination[];
+    accountIndex: number;
+    subaddressIndices: number[];
+}
+
+export interface Destination {
+    address: string;
+    amount: string;
+}
+export interface Input {
+    keyImage: KeyImage;
+}
+
+export interface KeyImage {
+    hex: string;
+}
+
+export interface IncomingTransfer {
+    address: string;
+    amount: string;
+    accountIndex: number;
+    subaddressIndex: number;
+    numSuggestedConfirmations: number;
+}
+
+// getTx, sendTx, address
+
+export const generateAddress = async (): Promise<{address: string} | null> => {
+    const endpoint = `/wallet/${moneroxWallet}/address`;
+
     try {
-        // existing transaction, if not duplicate
-        const [error, existingTransaction] = await awaitTo(
-            TransactionModel.pagination({
-                where: {
-                    transactionHash,
-                },
-            })
-        );
-
-        if (error) {
-            throw error;
-        }
-
-        return !isEmpty(existingTransaction);
-    } catch (error) {
-        log('Error transactionExists', error && error.message);
-        return false;
-    }
-};
-
-// TODO response
-export const generateAddress = async (currency: string): Promise<{address: string} | null> => {
-    // https://docs.btcpayserver.org/API/Greenfield/v1/#operation/StoreOnChainWallets_GetOnChainWalletReceiveAddress
-    // https://docs.btcpayserver.org/api/v1/stores/{storeId}/payment-methods/onchain/{cryptoCode}/wallet/address
-    const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet/address`;
-
-    try {
-        const {data} = await axios.get(endpoint, {
+        const {data} = await moneroApi.post<Res<{address: string}>>(endpoint, {
             headers: {
-                Authorization: `token ${btcpayServerToken}`,
+                // Authorization: `token ${btcpayServerToken}`,
             },
         });
 
-        return data;
+        if (!data || !data.success) {
+            throw new Error(data.message);
+        }
+
+        return data.data;
     } catch (error) {
         console.error('Error generating address:', error);
         return null;
     }
 };
 
-export const fetchStores = async () => {
+export const createTransactions = async (destinations: txDest): Promise<any> => {
     try {
-        const endpoint = btcpayServerUrl;
+        const endpoint = `/wallet/${moneroxWallet}/send`;
 
-        const {data} = await axios.get(endpoint + '/stores', {
+        const {data} = await moneroApi.post<Res<SentMoneroxTx>>(endpoint, destinations, {
             headers: {
-                Authorization: `token ${btcpayServerToken}`,
+                // Authorization: `token ${btcpayServerToken}`,
             },
         });
 
-        return data;
-    } catch (error) {
-        console.error('Error generating stores:', error);
-        return null;
-    }
-};
+        if (!data || !data.success) {
+            throw new Error(data.message);
+        }
 
-export const fetchStatus = async (currency: string) => {
-    try {
-        const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet?forceGenerate=true`;
-
-        const {data} = await axios.get(endpoint, {
-            headers: {
-                Authorization: `token ${btcpayServerToken}`,
-            },
-        });
-
-        return data;
-    } catch (error) {
-        console.error('Error crypto status:', error);
-        return null;
-    }
-};
-
-export interface txDest {
-    destination: string;
-    amount: string;
-    subtractFromAmount?: boolean;
-}
-
-// TODO use bull queue
-export const createTransactions = async (
-    currency: string,
-    destinations: txDest[]
-): Promise<BtcpayserverTransaction> => {
-    // https://docs.btcpayserver.org/API/Greenfield/v1/#operation/StoreOnChainWallets_ShowOnChainWalletTransactions
-    // https://docs.btcpayserver.org/api/v1/stores/{storeId}/payment-methods/onchain/{cryptoCode}/wallet/transactions
-
-    try {
-        const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet/transactions`;
-
-        const {data} = await axios.post(
-            endpoint,
-            {
-                destinations,
-            },
-            {
-                headers: {
-                    Authorization: `token ${btcpayServerToken}`,
-                },
-            }
-        );
-
-        return data;
+        return data.data;
     } catch (error) {
         console.error('Error generating transactions:', error);
         return null;
     }
 };
 
-// TODO response
-// use local query, if not found, push to bull queue
-// use bull queue
-export const fetchTransactions = async (currency: string) => {
-    // https://docs.btcpayserver.org/API/Greenfield/v1/#operation/StoreOnChainWallets_ShowOnChainWalletTransactions
-    // https://docs.btcpayserver.org/api/v1/stores/{storeId}/payment-methods/onchain/{cryptoCode}/wallet/transactions
-    // statusFilter: "confirmed"
-    // limit
+export const fetchTransactions = async () => {
     try {
-        const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet/transactions?statusFilter=confirmed&limit=100`;
+        const endpoint = `/wallet/${moneroxWallet}/txs`;
 
-        const {data} = await axios.get(endpoint, {
+        const {data} = await moneroApi.post<Res<MoneroxTx[]>>(endpoint, {
             headers: {
-                Authorization: `token ${btcpayServerToken}`,
+                // Authorization: `token ${btcpayServerToken}`,
             },
         });
 
-        if (!isEmpty(data)) {
-            await btcPayServerProcessTransactions(data);
+        // if (!isEmpty(data)) {
+        //     await btcPayServerProcessTransactions(data);
+        // }
+
+        if (!data || !data.success) {
+            throw new Error(data.message);
         }
 
-        return data;
+        // process transactions
+        return data.data;
     } catch (error) {
         console.error('Error generating transactions:', error);
         return null;
@@ -174,23 +161,23 @@ export const fetchTransactions = async (currency: string) => {
 
 const localProcessedTransactions = [];
 
-export const btcPayServerProcessTransactions = async (transactions: BtcpayserverTransaction[]) => {
+export const xmrProcessTransactions = async (transactions: MoneroxTx[]) => {
     try {
         // check if transaction exists in local queue
         const transactionsToProcess = transactions.filter(
-            (transaction) => !localProcessedTransactions.includes(transaction.transactionHash)
+            (transaction) => !localProcessedTransactions.includes(transaction.hash)
         );
 
         // then check if transaction exists in db
         // if it exists, then add it to local queue
         const transactionsToCheckAndProcess = await Promise.all(
             transactionsToProcess.map(async (transaction) => {
-                if (await transactionExists(transaction.transactionHash)) {
-                    localProcessedTransactions.push(transaction.transactionHash);
-                    return {transaction, transactionId: transaction.transactionHash, exists: true};
+                if (await transactionExists(transaction.hash)) {
+                    localProcessedTransactions.push(transaction.hash);
+                    return {transaction, transactionId: transaction.hash, exists: true};
                 }
 
-                return {transaction, transactionId: transaction.transactionHash, exists: false};
+                return {transaction, transactionId: transaction.hash, exists: false};
             })
         );
 
@@ -199,7 +186,7 @@ export const btcPayServerProcessTransactions = async (transactions: Btcpayserver
             (transaction) => !transaction.exists
         );
         transactionsToPushToQueue.forEach((transaction) => {
-            addTxToBtcQueue(transaction.transaction);
+            addTxToXmrQueue(transaction.transaction);
         });
     } catch (error) {
         console.error('Error processing transactions:', error);
@@ -207,23 +194,8 @@ export const btcPayServerProcessTransactions = async (transactions: Btcpayserver
     }
 };
 
-// TODO
-export const verifyTransaction = async (transactionId: string): Promise<MempoolTxOut[] | null> => {
-    // get transaction using mempool.space, else kraken
-    try {
-        const txFromBlockchain = await getTxAddressFromBlockchain(transactionId);
-        if (isEmpty(txFromBlockchain)) {
-            throw new Error('transaction not found in blockchain');
-        }
-        return txFromBlockchain;
-    } catch (error) {
-        console.error('Error verifying transaction:', error);
-        return null;
-    }
-};
-
-export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Promise<void> => {
-    verbose('Fulfilling btcpayserver', payment);
+export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
+    verbose('Fulfilling monero', payment);
 
     const markAsProcessed = async (transactionHash: string) => {
         // push to local queue, as it has been processed, to avoid checking it again
@@ -232,7 +204,37 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
     };
 
     try {
-        const {amount: txAmount, transactionHash} = payment;
+        const {
+            hash: transactionHash,
+            isConfirmed,
+            isIncoming,
+            incomingTransfers,
+            outgoingTransfer,
+        } = payment;
+
+        let txAmount = null;
+        let confirmedTransaction = [];
+        if (isIncoming) {
+            confirmedTransaction = incomingTransfers.map((it) => ({
+                address: it.address,
+                amount: it.amount,
+            }));
+
+            txAmount = incomingTransfers.reduce((acc, it) => {
+                return acc + +it.amount;
+            }, 0);
+        } else {
+            txAmount = outgoingTransfer.amount;
+            confirmedTransaction = outgoingTransfer.destinations.map((dest) => ({
+                address: dest.address,
+                amount: dest.amount,
+            }));
+        }
+
+        if (!isConfirmed) {
+            log('transaction not confirmed yet');
+            return null;
+        }
 
         const isWithdrawal = +txAmount < 0;
 
@@ -252,20 +254,6 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
         );
         if (existingTransaction && !existingTransactionError) {
             throw new Error('transaction already exists = ' + transactionHash);
-        }
-
-        // get address of wallet
-        // verify transaction
-        const [errorVerifyingTransaction, confirmedTransaction] = await awaitTo(
-            verifyTransaction(transactionHash)
-        );
-
-        if (errorVerifyingTransaction) {
-            throw errorVerifyingTransaction;
-        }
-
-        if (isEmpty(confirmedTransaction)) {
-            throw new Error('tx not found');
         }
 
         log('verifyTransaction confirmedTransaction = ', confirmedTransaction);
@@ -357,7 +345,7 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
             })
         );
     } catch (error) {
-        log('Error fullfilling btcpayserver transaction', error);
+        log('Error fullfilling xmr transaction', error);
         return null;
     }
 };
