@@ -218,6 +218,7 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
             outgoingTransfer,
         } = payment;
 
+        let isWithdrawal = false;
         let txAmount = null;
         let confirmedTransaction = [];
         if (isIncoming) {
@@ -230,19 +231,18 @@ export const fulfillMonero = async (payment: MoneroxTx): Promise<void> => {
                 return acc + +it.amount;
             }, 0);
         } else {
-            txAmount = outgoingTransfer.amount;
+            txAmount = +outgoingTransfer.amount;
             confirmedTransaction = outgoingTransfer.destinations.map((dest) => ({
                 address: dest.address,
-                amount: dest.amount,
+                amount: +dest.amount,
             }));
+            isWithdrawal = true;
         }
 
         if (!isConfirmed) {
             log('monero: transaction not confirmed yet');
             return null;
         }
-
-        const isWithdrawal = +txAmount < 0;
 
         log('monero: isWithdrawal = ', isWithdrawal);
 
