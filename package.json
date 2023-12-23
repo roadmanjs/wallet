@@ -1,6 +1,6 @@
 {
     "name": "@roadmanjs/wallet",
-    "version": "0.0.69",
+    "version": "0.0.70",
     "description": "A very Wallet",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
