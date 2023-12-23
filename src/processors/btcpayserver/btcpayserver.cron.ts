@@ -29,6 +29,6 @@ export function startBtcpayserverPullingCron() {
 
     cron.schedule(btcpayServerCron, async () => {
         log('BtcpayserverPullingCron: ', currencies);
-        await Promise.all(currencies.map((currency) => fetchTransactions(currency)));
+        await fetchTransactions('BTC');
     });
 }

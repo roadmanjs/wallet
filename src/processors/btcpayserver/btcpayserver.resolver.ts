@@ -1,6 +1,5 @@
-import {Resolver, Query, Arg, UseMiddleware} from 'type-graphql';
+import {Resolver, Query, Arg} from 'type-graphql';
 import {log} from '@roadmanjs/logs';
-import {isAuth} from '@roadmanjs/auth';
 import {ObjectType, Field} from 'couchset';
 import {fetchRates} from './rates';
 
@@ -16,7 +15,6 @@ export class PairRate {
 @Resolver()
 export class BtcpayserverResolver {
     @Query(() => [PairRate])
-    @UseMiddleware(isAuth)
     async fetchRates(
         @Arg('pairs', () => String, {
             nullable: false,
