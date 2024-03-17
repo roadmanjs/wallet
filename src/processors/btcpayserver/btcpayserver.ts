@@ -1,5 +1,6 @@
 import {MempoolTxOut, getTxAddressFromBlockchain} from './blockchain';
 import {WalletAddress, WalletAddressModel, updateWallet} from '../../wallet';
+import WithdrawRequestModel, {WithdrawRequestStatus} from '../../wallet/withdrawRequest.model';
 import {add, isEmpty} from 'lodash';
 import {btcpayServerStore, btcpayServerToken, btcpayServerUrl} from './btcpayserver.config';
 import {log, verbose} from '@roadmanjs/logs';
@@ -107,6 +108,42 @@ export const fetchStatus = async (currency: string) => {
     }
 };
 
+export interface txDest {
+    destination: string;
+    amount: string;
+    subtractFromAmount?: boolean;
+}
+
+// TODO use bull queue
+export const createTransactions = async (
+    currency: string,
+    destinations: txDest[]
+): Promise<BtcpayserverTransaction> => {
+    // https://docs.btcpayserver.org/API/Greenfield/v1/#operation/StoreOnChainWallets_ShowOnChainWalletTransactions
+    // https://docs.btcpayserver.org/api/v1/stores/{storeId}/payment-methods/onchain/{cryptoCode}/wallet/transactions
+
+    try {
+        const endpoint = `${btcpayServerUrl}/stores/${btcpayServerStore}/payment-methods/onchain/${currency}/wallet/transactions`;
+
+        const {data} = await axios.post(
+            endpoint,
+            {
+                destinations,
+            },
+            {
+                headers: {
+                    Authorization: `token ${btcpayServerToken}`,
+                },
+            }
+        );
+
+        return data;
+    } catch (error) {
+        console.error('Error generating transactions:', error);
+        return null;
+    }
+};
+
 // TODO response
 // use local query, if not found, push to bull queue
 // use bull queue
@@ -197,6 +234,10 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
     try {
         const {amount: txAmount, transactionHash} = payment;
 
+        const isWithdrawal = +txAmount < 0;
+
+        log('isWithdrawal = ', isWithdrawal);
+
         if (isEmpty(txAmount)) {
             throw new Error('amount cannot be empty');
         }
@@ -240,6 +281,41 @@ export const fulfillBtcpayserver = async (payment: BtcpayserverTransaction): Pro
                     return Promise.resolve({data: 'address is empty'});
                 }
 
+                // WITHDRAWAL --------------------------------------------------------------------------------------------------------------------------------------------------------
+                // WITHDRAWAL --------------------------------------------------------------------------------------------------------------------------------------------------------
+                // WITHDRAWAL --------------------------------------------------------------------------------------------------------------------------------------------------------
+                if (isWithdrawal) {
+                    const withdrawRequests = await WithdrawRequestModel.pagination({
+                        where: {
+                            transactionHash,
+                        },
+                    });
+
+                    if (!isEmpty(withdrawRequests)) {
+                        const withdrawRequest = withdrawRequests.pop();
+
+                        log('withdrawRequest = ' + withdrawRequest);
+
+                        // update withdraw request
+                        const updatedWithdraw = await WithdrawRequestModel.updateById(
+                            withdrawRequest.id,
+                            {
+                                ...withdrawRequest,
+                                status: WithdrawRequestStatus.completed,
+                            }
+                        );
+                        log('withdrawRequest updated = ' + updatedWithdraw);
+                        markAsProcessed(transactionHash);
+                        return Promise.resolve({data: updatedWithdraw});
+                    }
+                    log('withdrawRequests not found');
+                    markAsProcessed(transactionHash);
+                    return Promise.resolve({data: 'withdrawal not supported yet'});
+                }
+
+                // FOR DEPOSIT --------------------------------------------------------------------------------------------------------------------------------------------------------
+                // FOR DEPOSIT --------------------------------------------------------------------------------------------------------------------------------------------------------
+                // FOR DEPOSIT --------------------------------------------------------------------------------------------------------------------------------------------------------
                 // find wallet address
                 const [errorAddress, addressWallet] = await awaitTo(
                     WalletAddressModel.findById(address)

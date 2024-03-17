@@ -8,6 +8,7 @@ export const btcpayServerStore = _get(process.env, 'BTCPAYSERVER_STORE', '');
 export const btcpayServerBtcWalletId = _get(process.env, 'BTCPAYSERVER_BTC', '');
 export const btcpayServerXmrWalletId = _get(process.env, 'BTCPAYSERVER_XMR', '');
 export const btcpayServerCron = _get(process.env, 'BTCPAYSERVER_CRON', '*/5 * * * *');
+export const btcpayServerCronRates = _get(process.env, 'BTCPAYSERVER_CRON_RATES', '*/1 * * * *');
 export const btcpayServerCronEnabled = _get(process.env, 'BTCPAYSERVER_CRON_ENABLED', '');
 
 // BTCPAYSERVER_CRON_ENABLED=btc,xmr

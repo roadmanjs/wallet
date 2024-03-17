@@ -1,15 +1,26 @@
-import {UserType} from '@roadmanjs/auth';
-import {WalletAddress} from '../../wallet';
+import {UserType} from '@roadmanjs/auth-client';
 import gql from 'graphql-tag';
-
+export interface WalletAddress {
+    id?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    owner?: string;
+    currency?: string;
+    transactions?: number;
+}
 export interface Wallet {
-    id: string;
-    createdAt: Date;
-    updatedAt: Date;
-    owner: string | UserType;
-    currency: string;
-    address: string | WalletAddress;
-    amount: number;
+    id?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+    owner: UserType | string;
+    address?: WalletAddress | string;
+    currency?: string;
+    amount?: number;
+}
+
+export interface WalletOutput extends Wallet {
+    owner: UserType;
+    address?: WalletAddress;
 }
 
 export interface WalletPagination {

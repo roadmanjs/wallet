@@ -7,23 +7,51 @@ import {
     WalletOutput,
     walletModelName,
 } from './Wallet.model';
+import {
+    createTransactions as createTransactionsBtc,
+    generateAddress,
+    txDest,
+} from '../processors/btcpayserver/btcpayserver';
+import {createTransactionsXmr, generateAddressXmr} from '../processors/monerox/monerox';
 
 import {CouchbaseConnection} from 'couchset';
 import {StatusType} from '../shared/enums';
 import {UserModel} from '@roadmanjs/auth';
 import {awaitTo} from 'couchset/dist/utils';
-import {generateAddress} from '../processors/btcpayserver/btcpayserver';
 import isEmpty from 'lodash/isEmpty';
 import {log} from '@roadmanjs/logs';
+
+// createTransactions
+export const walletAddressApi = {
+    BTC: generateAddress,
+    XMR: generateAddressXmr,
+};
+
+export const walletTxApi = {
+    BTC: createTransactionsBtc,
+
+    /**
+     *
+     * @param _cur
+     * @param dest only one destination is allowed
+     * @returns
+     */
+    XMR: (_cur: string, dest: txDest[]) => createTransactionsXmr(dest[0]),
+};
+
+export const walletSatoshiToUnit = {
+    BTC: 100000000,
+    XMR: 1000000000000,
+};
 
 interface FindWallet {
     owner: string;
     currency: string;
-    create?: boolean;
+    createNew?: boolean;
 }
 
 export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> => {
-    const {owner, currency, create = false} = args;
+    const {owner, currency, createNew = false} = args;
     // create wallet if not exist
 
     const bucket = CouchbaseConnection.Instance.bucketName;
@@ -32,14 +60,14 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
               SELECT *
                   FROM \`${bucket}\` wallet
                   LEFT JOIN \`${bucket}\` owner ON KEYS wallet.owner
-                  LEFT JOIN \`${bucket}\` address ON KEYS orders.address
+                  LEFT JOIN \`${bucket}\` address ON KEYS wallet.address
                   WHERE wallet._type = "${walletModelName}"
                   AND wallet.owner = "${owner}"
                   AND wallet.currency = "${currency}"
               `;
 
     const [errorFetching, data = []] = await awaitTo(
-        WalletModel.customQuery<WalletOutput>({
+        WalletModel.customQuery<WalletOutput & {wallet: Wallet}>({
             limit: 1,
             query,
             params: {
@@ -56,13 +84,15 @@ export const createFindWallet = async (args: FindWallet): Promise<WalletOutput> 
     const [rows = []] = data;
 
     const wallets = rows.map((d) => {
-        const {address, owner, ...wallet} = d;
-        return WalletModel.parse({...wallet, address, owner});
+        const wallet = d.wallet ? WalletModel.parse(d.wallet) : null;
+        const address = d.address ? WalletAddressModel.parse(d.address) : null;
+        const owner = d.owner ? UserModel.parse(d.owner) : null;
+        return {...wallet, address, owner};
     });
 
     if (!isEmpty(wallets)) {
         return wallets.pop();
-    } else if (create) {
+    } else if (createNew) {
         const newWallet: Wallet = {
             owner,
             currency,
@@ -80,21 +110,35 @@ export const createWalletAddress = async (
     owner: string,
     currency: string
 ): Promise<WalletAddress | null> => {
-    const CURRENCY = currency.toUpperCase();
     try {
-        // TODO other cryptos
+        if (isEmpty(owner) || isEmpty(currency)) throw new Error('error creating wallet address');
 
-        // BTC
-        const newBtcAddress = await generateAddress(CURRENCY);
+        const CURRENCY = currency.toUpperCase();
+        // the wallet must exist
+        const wallet = await createFindWallet({owner, currency: CURRENCY, createNew: true});
+        if (isEmpty(wallet)) {
+            throw new Error('error creating wallet address');
+        }
+
+        const api = walletAddressApi[CURRENCY];
+        const newAddress = await api(CURRENCY);
+
+        if (isEmpty(newAddress)) throw new Error('error creating wallet address');
 
         const newWalletAddress: WalletAddress = {
             owner,
-            id: newBtcAddress.address,
+            id: newAddress.address,
             currency: CURRENCY,
             transactions: 0,
         };
 
         const createdWalletAddress = await WalletAddressModel.create(newWalletAddress);
+
+        await WalletModel.updateById(wallet.id, {
+            ...wallet,
+            owner,
+            address: createdWalletAddress.id,
+        });
 
         return createdWalletAddress;
     } catch (error) {
@@ -125,7 +169,8 @@ interface IUpdateWallet {
  * @returns
  */
 export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWallet> => {
-    const {owner, amount, source, sourceId, message, currency, transactionHash} = args;
+    const {owner, amount, source, sourceId, message, currency = 'USD', transactionHash} = args;
+    const CURRENCY = currency.toUpperCase();
 
     try {
         log('updateUserWallet', JSON.stringify({owner, amount, source, sourceId, message}));
@@ -141,26 +186,36 @@ export const updateWallet = async (args: IUpdateUserWallet): Promise<IUpdateWall
                 type: transType, // withdraw or deposit
                 source: source || '', // paypal, credit card, interact
                 sourceId: sourceId || '', // paypal, credit card, interact
-                currency: 'USD',
+                currency: CURRENCY,
                 amount,
                 status: StatusType.SUCCESS,
                 transactionHash,
             };
 
-            // getById
-            const getWallet = await createFindWallet({owner, currency, create: true});
+            const getWallet = await WalletModel.pagination({
+                where: {
+                    owner,
+                    currency: CURRENCY,
+                },
+            });
 
-            const currentBalance = getWallet.amount;
+            if (isEmpty(getWallet)) throw new Error('error getting user wallet');
+
+            const wallet = getWallet.shift();
+
+            log('existing wallet', wallet);
+
+            const currentBalance = wallet.amount;
             const newBalance = currentBalance + amount;
 
-            // @ts-ignore
-            const updatedWallet = await WalletModel.save({
-                ...getWallet,
+            const updatedWallet = await WalletModel.updateById(wallet.id, {
+                ...wallet,
                 amount: newBalance,
             });
 
+            log('updatedWallet wallet', updatedWallet);
+
             const transactionCreated = await TransactionModel.create(newTransaction);
-            // TODO notifications
 
             log('successfully update user balance');
             return {transaction: transactionCreated, wallet: updatedWallet};

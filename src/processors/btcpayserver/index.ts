@@ -27,3 +27,5 @@ export * from './btcpayserver';
 export * from './btcpayserver.config';
 export * from './btcpayserver.queue';
 export * from './btcpayserver.cron';
+export * from './btcpayserver.resolver';
+export * from './rates';

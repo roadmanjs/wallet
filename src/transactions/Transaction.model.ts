@@ -38,8 +38,18 @@ export class Transaction {
 
     @Field(() => Number, {nullable: true})
     amount = 0;
+
+    @Field(() => Number, {nullable: true})
+    feePerc?: number = 0;
 }
 
 export const TransactionModel: Model = new Model(Transaction.name, {graphqlType: Transaction});
+
+export const {
+    resolver: TransactionDefaultResolver, // there's going to be other custom resolvers
+    pagination: TransactionPagination,
+    client: TransactionClient,
+    modelKeys: TransactionModelKeys,
+} = TransactionModel.automate();
 
 export default TransactionModel;
